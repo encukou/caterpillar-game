@@ -20,6 +20,7 @@
   <defs
      id="defs2" />
   <sodipodi:namedview
+     inkscape:pagecheckerboard="true"
      inkscape:snap-bbox-edge-midpoints="true"
      inkscape:snap-nodes="false"
      inkscape:snap-bbox-midpoints="true"
@@ -35,9 +36,9 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="px"
-     inkscape:cy="493.04887"
-     inkscape:cx="30.753462"
-     inkscape:zoom="29.723978"
+     inkscape:cy="534.21756"
+     inkscape:cx="64.478776"
+     inkscape:zoom="10.509013"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      borderopacity="1.0"
@@ -104,7 +105,7 @@
        cy="143.93333"
        cx="8.4666672"
        id="path855"
-       style="fill:#00ff00;fill-rule:evenodd;stroke-width:0.551216;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.551216;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
     <ellipse
        ry="2.1166666"
        rx="2.1166668"
@@ -120,7 +121,7 @@
        id="path861"
        style="fill:#ffff00;fill-rule:evenodd;stroke-width:0.763786;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
     <circle
-       style="fill:#00ff00;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke"
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke"
        id="circle865"
        cx="25.4"
        cy="143.93333"
@@ -146,7 +147,7 @@
        style="fill:#4d4d4d;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
     <ellipse
        transform="scale(-1,1)"
-       style="fill:#00ff00;fill-rule:evenodd;stroke-width:0.0954726;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke"
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.0954726;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke"
        id="ellipse873"
        cx="-15.08125"
        cy="143.93333"
@@ -158,7 +159,7 @@
        cy="144.06563"
        cx="-1.8520833"
        id="ellipse875"
-       style="fill:#00ff00;fill-rule:evenodd;stroke-width:0.101264;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke"
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.101264;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke"
        transform="scale(-1,1)" />
   </g>
 </svg>

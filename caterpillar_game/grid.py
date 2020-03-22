@@ -95,6 +95,7 @@ class Segment:
     from_direction: tuple
 
     def __post_init__(self):
+        self.xy = self.x, self.y
         self.is_fresh_end = False
         self.from_angle = DIR_ANGLES[self.from_direction]
         self.adjust_from_angle()
@@ -131,7 +132,7 @@ class Segment:
         while self.from_angle - 180 > to_angle:
             self.from_angle -= 360
 
-    def update_sprite(self, sprite, t, is_head, i):
+    def update_sprite(self, sprite, t, is_head, i, ct):
         if self.is_fresh_end:
             sprite.x = (self.x+1) * TILE_WIDTH
             sprite.y = (self.y+1) * TILE_WIDTH
@@ -147,10 +148,17 @@ class Segment:
         sprite.rotation = lerp(
             self.from_angle, DIR_ANGLES[self.direction], t
         ) + math.sin(t * math.tau * 2) * wiggle
+        if ct:
+            if ct > 1:
+                ct = 1
+            if not is_head:
+                sprite.rotation += ct * 90
+            sprite.color = 0, lerp(255, 100, ct), 0
 
 
 class Caterpillar:
     def __init__(self, grid, direction=(+1, 0)):
+        self.cocooning = False
         self.grid = grid
         self.direction = direction
         dx, dy = direction
@@ -161,11 +169,13 @@ class Caterpillar:
         self.body_image = get_image('body')
         self.head_image = get_image('head')
         self.t = 0
+        self.ct = 0
         self.batch = pyglet.graphics.Batch()
         sprite = pyglet.sprite.Sprite(
             self.head_image,
             batch=self.batch,
         )
+        sprite.color = 0, 255, 0
         sprite.scale = TILE_WIDTH / sprite.width
         self.sprites = [sprite]
 
@@ -176,13 +186,15 @@ class Caterpillar:
                 batch=self.batch,
             )
             sprite.scale = TILE_WIDTH / sprite.width
+            sprite.color = 0, 255, 0
             self.sprites.append(sprite)
         while len(self.sprites) > len(self.segments):
             self.sprites.pop().delete()
         t = self.t
         for i, segment in enumerate(self.segments):
             segment.update_sprite(
-                self.sprites[-1-i], t,
+                self.sprites[-1-i],
+                t=t, ct=self.ct,
                 is_head=(i == len(self.segments) - 1),
                 i=i,
             )
@@ -191,19 +203,29 @@ class Caterpillar:
     def turn(self, direction):
         x, y = direction
         head = self.segments[-1]
-        if x != -head.x or y != -head.y:
+        fx, fy = head.from_direction
+        if x != -fx or y != -fy:
             self.direction = direction
             self.segments[-1].look(direction)
 
     def move(self, dt):
-        self.t += dt
-        while self.t > 1:
-            self.t -= 1
-            self.step()
+        if self.cocooning:
+            self.ct += dt
+            self.t += dt
+            if self.t > 0.5:
+                self.t = 0.5
+        else:
+            while self.t + dt > 1:
+                dt -= 1
+                self.step()
+            self.t += dt
 
     def step(self):
         head = self.segments[-1]
         new_head = head.grow_head(self.direction)
+        for segment in self.segments:
+            if segment.xy == new_head.xy:
+                self.cocooning = True
         self.segments.append(new_head)
         if self.grid[new_head.x, new_head.y] == 16:
             self.grid[new_head.x, new_head.y] = 0
