@@ -6,6 +6,7 @@ TILE_WIDTH = 64
 
 SPRITES = {
     'body': (0, 0),
+    'head': (1, 0),
 }
 
 spritesheet_image = None
@@ -23,6 +24,9 @@ def get_image(name):
     except KeyError:
         x = name % 16
         y = name // 16
-    return get_spritesheet_image().get_region(
+    region = get_spritesheet_image().get_region(
         x * TILE_WIDTH, y * TILE_WIDTH, TILE_WIDTH, TILE_WIDTH,
     )
+    region.anchor_x = TILE_WIDTH//2
+    region.anchor_y = TILE_WIDTH//2
+    return region
