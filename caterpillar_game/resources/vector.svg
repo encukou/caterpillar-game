@@ -5,6 +5,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    inkscape:export-ydpi="96"
@@ -18,8 +19,40 @@
    height="576"
    width="1024">
   <defs
-     id="defs2" />
+     id="defs2">
+    <linearGradient
+       id="linearGradient903"
+       inkscape:collect="always">
+      <stop
+         id="stop899"
+         offset="0"
+         style="stop-color:#ffffff;stop-opacity:0" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0.99463427"
+         offset="0.33333305"
+         id="stop907" />
+      <stop
+         id="stop909"
+         offset="0.66666627"
+         style="stop-color:#ffffff;stop-opacity:1" />
+      <stop
+         id="stop901"
+         offset="1"
+         style="stop-color:#ffffff;stop-opacity:0;" />
+    </linearGradient>
+    <linearGradient
+       gradientTransform="matrix(1,0,0,2.0312496,0,-139.9645)"
+       gradientUnits="userSpaceOnUse"
+       y2="139.7"
+       x2="133.35001"
+       y1="139.7"
+       x1="120.65"
+       id="linearGradient905"
+       xlink:href="#linearGradient903"
+       inkscape:collect="always" />
+  </defs>
   <sodipodi:namedview
+     inkscape:snap-global="true"
      inkscape:pagecheckerboard="true"
      inkscape:snap-bbox-edge-midpoints="true"
      inkscape:snap-nodes="true"
@@ -36,14 +69,14 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="px"
-     inkscape:cy="543.05596"
-     inkscape:cx="336.39041"
-     inkscape:zoom="10.509013"
+     inkscape:cy="539.62939"
+     inkscape:cx="484.89772"
+     inkscape:zoom="8"
      inkscape:pageshadow="2"
-     inkscape:pageopacity="0.0"
+     inkscape:pageopacity="0"
      borderopacity="1.0"
      bordercolor="#666666"
-     pagecolor="#ffffff"
+     pagecolor="#000000"
      id="base">
     <inkscape:grid
        opacity="0"
@@ -195,5 +228,12 @@
        id="path895"
        d="m 118.53333,135.46666 h -16.93334 v 14.81667 l 1.32292,-0.52917 v 1.32292 l 2.11667,-0.26459 -1.32292,1.5875 h 14.81667 z"
        style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <rect
+       y="135.20209"
+       x="120.65"
+       height="17.197912"
+       width="12.7"
+       id="rect897"
+       style="fill:url(#linearGradient905);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.942723;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
   </g>
 </svg>

@@ -14,6 +14,7 @@ SPRITES = {
     'coccoon_2': (4, 0),
     'coccoon_3': (5, 0),
     'coccoon_4': (6, 0),
+    'line': (7, 0),
 }
 
 spritesheet_image = None
@@ -26,7 +27,7 @@ def get_spritesheet_image():
     return spritesheet_image
 
 @functools.lru_cache()
-def get_image(name):
+def get_image(name, anchor_x=0.5, anchor_y=0.5):
     try:
         x, y = SPRITES[name]
     except KeyError:
@@ -35,6 +36,6 @@ def get_image(name):
     region = get_spritesheet_image().get_region(
         x * IMAGE_WIDTH, y * IMAGE_WIDTH, IMAGE_WIDTH, IMAGE_WIDTH,
     )
-    region.anchor_x = IMAGE_WIDTH//2
-    region.anchor_y = IMAGE_WIDTH//2
+    region.anchor_x = round(IMAGE_WIDTH * anchor_x)
+    region.anchor_y = round(IMAGE_WIDTH * anchor_y)
     return region

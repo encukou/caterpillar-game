@@ -3,6 +3,7 @@ import dataclasses
 import collections
 import math
 import random
+from heapq import heappush, heappop
 
 import pyglet
 from bresenham import bresenham
@@ -10,6 +11,7 @@ from bresenham import bresenham
 from .resources import get_image, TILE_WIDTH
 
 SPEED = 2
+WEAVE_SPEED = 50
 
 DIR_ANGLES = {
     (0, +1): 0,
@@ -296,8 +298,10 @@ class Cocoon:
         self.t = 0
 
         self.batch = pyglet.graphics.Batch()
-        self.debug_batch = pyglet.graphics.Batch()
+        self.line_batch = pyglet.graphics.Batch()
         self.sprites = []
+
+        self.sprite_color = 0, 100, 0
 
         coccooning = False
         self.cocoon_tiles = cocoon_tiles = {}
@@ -347,54 +351,62 @@ class Cocoon:
                 batch=self.batch,
             )
             sprite.scale = TILE_WIDTH / sprite.width
-            sprite.color = 100, 255, 255
+            sprite.color = self.sprite_color
             sprite.rotation = tile_rotation
-            sprite.opacity = 200
+            sprite.opacity = 100
             self.sprites.append(sprite)
 
-        self.add_lines()
+        self.green_t, self.white_t, self.end_t = self.add_lines()
 
     def add_lines(self):
-        edges = list(self.edge_tiles) * 3
-        start = self.caterpillar.segments[-1].xy
-        pos = [0]
-        pospos = 0
-        posposcounter = 5
+        edges = list(self.edge_tiles)
+        heads = [(0.5 * WEAVE_SPEED, self.caterpillar.segments[-1].xy, (0, 0))]
+        new_head_counter = 5
         covered = set()
-        for i in range(100):
-            if not edges:
+        for i in range(300):
+            if not heads:
                 break
-            if not edges:
-                break
-            best_candidate = None
+            best_coords = None
+            pos, start, fuzz = heappop(heads)
             for i in range(7):
-                candidate = random.randrange(len(edges))
-                if candidate == start:
-                    continue
                 sx, sy = start
-                candidate_coords = cx, cy = edges[candidate]
-                sq_distance = abs(sx - cx) ** 2 + abs(cy - cy) ** 2
+                candidate_coords = cx, cy = random.choice(edges)
+                sq_distance = abs(sx - cx) ** 2 + abs(sy - cy) ** 2
                 if (
-                    (best_candidate is None or sq_distance > best_sq_distance)
+                    (best_coords is None or sq_distance > best_sq_distance)
                     and start != candidate_coords
                     and (start, candidate_coords) not in covered
                     and self.bresenham_check(start, candidate_coords)
                 ):
-                    best_candidate = candidate
                     best_sq_distance = sq_distance
-            if best_candidate:
-                duration = math.sqrt(best_sq_distance)
-                best_coords = edges.pop(best_candidate)
-                self.lines.append(CocoonLine(start, best_coords, pos[pospos], duration))
-                posposcounter -= 1
-                if posposcounter <= 0:
-                    posposcounter = 5
-                    pos.append(pos[pospos])
-                pospos = (pospos + 1) % len(pos)
+                    best_coords = candidate_coords
+            if best_coords is not None:
+                distance = math.sqrt(best_sq_distance)
+                bx, by = best_coords
+                fx, fy = fuzz
+                new_fuzz = random.uniform(-.5, .5), random.uniform(-.5, .5)
+                nfx, nfy = new_fuzz
+                self.lines.append(CocoonLine(
+                    self,
+                    (sx + fx, sy + fy),
+                    (bx + nfx, by + nfy),
+                    start_t=pos,
+                    duration=distance,
+                    batch=self.line_batch,
+                    length=distance,
+                ))
+                new_head_counter -= 1
                 covered.add((start, best_coords))
                 covered.add((best_coords, start))
-                pos[pospos] += duration
-                start = best_coords
+                if new_head_counter <= 0:
+                    heappush(heads, (pos+distance, best_coords, new_fuzz))
+                    new_head_counter = 5
+                heappush(heads, (pos+distance, best_coords, new_fuzz))
+        if not heads:
+            return 1, 2, 2.2
+        pos, start, fuzz = heappop(heads)
+        end = pos / WEAVE_SPEED
+        return end + 1, end + 1.5, end + 1.6
 
     def bresenham_check(self, start, end):
         for x, y in bresenham(*start, *end):
@@ -403,33 +415,79 @@ class Cocoon:
         return True
 
     def draw(self):
+        self.update_sprites()
         self.batch.draw()
-        self.debug_batch.draw()
         for line in self.lines:
-            line.draw(self.t)
+            line.update_sprite(self.t)
+        self.line_batch.draw()
+
+    def update_sprites(self):
+        t = self.t
+        if t < self.green_t:
+            t /= self.green_t
+            op = int(255 * t)
+            for sprite in self.sprites:
+                sprite.opacity = op
+            return
+        for sprite in self.sprites:
+            sprite.opacity = 255
+        if t < self.white_t:
+            t -= self.green_t
+            t /= (self.white_t - self.green_t)
+            a = int(lerp(0, 255, t))
+            b = int(lerp(100, 255, t))
+            self.sprite_color = sprite_color = a, b, a
+            for sprite in self.sprites:
+                sprite.color = sprite_color
+            return
+        self.sprite_color = sprite_color = 255, 255, 255
+        for sprite in self.sprites:
+            sprite.color = sprite_color
 
     def tick(self, dt):
         self.t += dt
 
 class CocoonLine:
-    def __init__(self, start, end, start_t, duration):
+    def __init__(self, cocoon, start, end, start_t, duration, batch, length):
+        self.cocoon = cocoon
         self.sx, self.sy = start
         self.ex, self.ey = end
         self.start_t = start_t
         self.duration = duration + 0.1
+        self.length = length
+        self.sprite = sprite = pyglet.sprite.Sprite(
+            get_image('line', 0.5, 0),
+            x=(self.sx+1) * TILE_WIDTH,
+            y=(self.sy+1) * TILE_WIDTH,
+            batch=batch,
+        )
+        sprite.rotation = 90 - math.degrees(math.atan2(
+            self.ey - self.sy, self.ex - self.sx
+        ))
+        sprite.scale_x = TILE_WIDTH / 5 / sprite.image.width
+        sprite.scale_y = 0
+        sprite.color = 255, 255, 255
+        self.max_sprite_scale = length * TILE_WIDTH / sprite.image.width
 
-    def draw(self, t):
-        t *= 30
+    def update_sprite(self, t):
+        t *= WEAVE_SPEED
         t -= self.start_t
         if t < 0:
             return
         t /= self.duration
         if t > 1:
-            ex, ey = self.ex, self.ey
+            self.sprite.scale_y = self.max_sprite_scale
         else:
-            ex = lerp(self.sx, self.ex, t)
-            ey = lerp(self.sy, self.ey, t)
-        pyglet.gl.glLineWidth(5)
-        pyglet.graphics.draw(2, pyglet.gl.GL_LINES,
-            ("v2f", ((self.sx+1)*TILE_WIDTH, (self.sy+1)*TILE_WIDTH, (ex+1)*TILE_WIDTH, (ey+1)*TILE_WIDTH))
-        )
+            self.sprite.scale_y = t * self.max_sprite_scale
+
+        t -= 1
+        if t < 0:
+            self.sprite.color = 255, 255, 255
+        elif t > 1:
+            self.sprite.color = self.cocoon.sprite_color
+        else:
+            cr, cg, cb = self.cocoon.sprite_color
+            lr = lerp(255, cr, t)
+            lg = lerp(255, cg, t)
+            lb = lerp(255, cb, t)
+            self.sprite.color = lr, lg, lb
