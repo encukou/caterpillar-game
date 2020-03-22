@@ -19,9 +19,6 @@ class Window(pyglet.window.Window):
 
     def on_draw(self):
         self.clear()
-        # Set up alpha blending
-        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
-        pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
 
         # Draw current scene
         self.scene.draw()
