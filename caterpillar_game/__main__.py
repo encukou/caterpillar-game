@@ -1,5 +1,6 @@
 from .window import Window
+from .grid import Grid
 
-window = Window()
+window = Window(Grid())
 
 window.run()
