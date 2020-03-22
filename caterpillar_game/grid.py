@@ -2,8 +2,10 @@ import array
 import dataclasses
 import collections
 import math
+import random
 
 import pyglet
+from bresenham import bresenham
 
 from .resources import get_image, TILE_WIDTH
 
@@ -289,6 +291,7 @@ class Cocoon:
     def __init__(self, grid, caterpillar):
         self.grid = grid
         self.caterpillar = caterpillar
+        self.edge_tiles = set()
         self.lines = []
         self.t = 0
 
@@ -297,19 +300,21 @@ class Cocoon:
         self.sprites = []
 
         coccooning = False
-        cocoon_tiles = {}
+        self.cocoon_tiles = cocoon_tiles = {}
         head = caterpillar.segments[-1]
         xs = set()
         ys = set()
         for segment in caterpillar.segments:
+            xy = segment.xy
             if coccooning:
-                x, y = segment.xy
+                x, y = xy
+                self.edge_tiles.add(xy)
                 xs.add(x)
                 ys.add(y)
                 cocoon_tiles[x, y] = {
                     segment.direction, flip(segment.from_direction)
                 }
-            if segment.xy == head.xy:
+            if xy == head.xy:
                 coccooning = True
 
         if not ys:
@@ -347,9 +352,84 @@ class Cocoon:
             sprite.opacity = 200
             self.sprites.append(sprite)
 
+        self.add_lines()
+
+    def add_lines(self):
+        edges = list(self.edge_tiles) * 3
+        start = self.caterpillar.segments[-1].xy
+        pos = [0]
+        pospos = 0
+        posposcounter = 5
+        covered = set()
+        for i in range(100):
+            if not edges:
+                break
+            if not edges:
+                break
+            best_candidate = None
+            for i in range(7):
+                candidate = random.randrange(len(edges))
+                if candidate == start:
+                    continue
+                sx, sy = start
+                candidate_coords = cx, cy = edges[candidate]
+                sq_distance = abs(sx - cx) ** 2 + abs(cy - cy) ** 2
+                if (
+                    (best_candidate is None or sq_distance > best_sq_distance)
+                    and start != candidate_coords
+                    and (start, candidate_coords) not in covered
+                    and self.bresenham_check(start, candidate_coords)
+                ):
+                    best_candidate = candidate
+                    best_sq_distance = sq_distance
+            if best_candidate:
+                duration = math.sqrt(best_sq_distance)
+                best_coords = edges.pop(best_candidate)
+                self.lines.append(CocoonLine(start, best_coords, pos[pospos], duration))
+                posposcounter -= 1
+                if posposcounter <= 0:
+                    posposcounter = 5
+                    pos.append(pos[pospos])
+                pospos = (pospos + 1) % len(pos)
+                covered.add((start, best_coords))
+                covered.add((best_coords, start))
+                pos[pospos] += duration
+                start = best_coords
+
+    def bresenham_check(self, start, end):
+        for x, y in bresenham(*start, *end):
+            if (x, y) not in self.cocoon_tiles:
+                return False
+        return True
+
     def draw(self):
         self.batch.draw()
         self.debug_batch.draw()
+        for line in self.lines:
+            line.draw(self.t)
 
     def tick(self, dt):
         self.t += dt
+
+class CocoonLine:
+    def __init__(self, start, end, start_t, duration):
+        self.sx, self.sy = start
+        self.ex, self.ey = end
+        self.start_t = start_t
+        self.duration = duration + 0.1
+
+    def draw(self, t):
+        t *= 30
+        t -= self.start_t
+        if t < 0:
+            return
+        t /= self.duration
+        if t > 1:
+            ex, ey = self.ex, self.ey
+        else:
+            ex = lerp(self.sx, self.ex, t)
+            ey = lerp(self.sy, self.ey, t)
+        pyglet.gl.glLineWidth(5)
+        pyglet.graphics.draw(2, pyglet.gl.GL_LINES,
+            ("v2f", ((self.sx+1)*TILE_WIDTH, (self.sy+1)*TILE_WIDTH, (ex+1)*TILE_WIDTH, (ey+1)*TILE_WIDTH))
+        )
