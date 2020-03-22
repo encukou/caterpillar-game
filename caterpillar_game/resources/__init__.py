@@ -18,7 +18,11 @@ def get_spritesheet_image():
     return spritesheet_image
 
 def get_image(name):
-    x, y = SPRITES[name]
+    try:
+        x, y = SPRITES[name]
+    except KeyError:
+        x = name % 16
+        y = name // 16
     return get_spritesheet_image().get_region(
         x * TILE_WIDTH, y * TILE_WIDTH, TILE_WIDTH, TILE_WIDTH,
     )
