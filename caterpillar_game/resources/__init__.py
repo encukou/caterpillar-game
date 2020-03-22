@@ -1,4 +1,5 @@
 import importlib.resources
+import functools
 
 import pyglet
 
@@ -19,6 +20,7 @@ def get_spritesheet_image():
             spritesheet_image = pyglet.image.load(p)
     return spritesheet_image
 
+@functools.lru_cache()
 def get_image(name):
     try:
         x, y = SPRITES[name]

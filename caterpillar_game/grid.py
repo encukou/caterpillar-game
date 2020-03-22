@@ -35,6 +35,9 @@ class Grid:
         self[12, 5] = 16
         self[13, 5] = 16
         self[14, 5] = 16
+        self[15, 5] = 16
+        self[16, 5] = 16
+        self[17, 5] = 16
 
     def draw(self):
         self.batch.draw()
@@ -89,14 +92,19 @@ class Segment:
     direction: tuple
     from_x: int
     from_y: int
-    from_angle: float
+    from_direction: tuple
+
+    def __post_init__(self):
+        self.is_fresh_end = False
+        self.from_angle = DIR_ANGLES[self.from_direction]
+        self.adjust_from_angle()
 
     @classmethod
     def make_initial(cls, x, y, direction):
         dx, dy = direction
         return cls(
             x=x, y=y, direction=direction,
-            from_x=x - dx, from_y=y - dy, from_angle=DIR_ANGLES[direction]
+            from_x=x - dx, from_y=y - dy, from_direction=direction,
         )
 
     def grow_head(self, direction):
@@ -107,14 +115,13 @@ class Segment:
             direction=direction,
             from_x=self.x,
             from_y=self.y,
-            from_angle=DIR_ANGLES[self.direction],
+            from_direction=self.direction,
         )
         seg.adjust_from_angle()
         return seg
 
     def look(self, direction):
         self.direction = direction
-        #self.from_angle = DIR_ANGLES[direction]
         self.adjust_from_angle()
 
     def adjust_from_angle(self):
@@ -124,9 +131,19 @@ class Segment:
         while self.from_angle - 180 > to_angle:
             self.from_angle -= 360
 
-    def update_sprite(self, sprite, t, wiggle=0):
-        sprite.x = (lerp(self.from_x, self.x, t)+1) * TILE_WIDTH
-        sprite.y = (lerp(self.from_y, self.y, t)+1) * TILE_WIDTH
+    def update_sprite(self, sprite, t, is_head, i):
+        if self.is_fresh_end:
+            sprite.x = (self.x+1) * TILE_WIDTH
+            sprite.y = (self.y+1) * TILE_WIDTH
+            sprite.scale = (t/2+1/2) * TILE_WIDTH / sprite.image.width
+        else:
+            sprite.x = (lerp(self.from_x, self.x, t)+1) * TILE_WIDTH
+            sprite.y = (lerp(self.from_y, self.y, t)+1) * TILE_WIDTH
+            sprite.scale = TILE_WIDTH / sprite.image.width
+        if is_head:
+            wiggle = 2
+        else:
+            wiggle = i % 2 * 20 - 10
         sprite.rotation = lerp(
             self.from_angle, DIR_ANGLES[self.direction], t
         ) + math.sin(t * math.tau * 2) * wiggle
@@ -144,8 +161,13 @@ class Caterpillar:
         self.body_image = get_image('body')
         self.head_image = get_image('head')
         self.t = 0
-        self.sprites = []
         self.batch = pyglet.graphics.Batch()
+        sprite = pyglet.sprite.Sprite(
+            self.head_image,
+            batch=self.batch,
+        )
+        sprite.scale = TILE_WIDTH / sprite.width
+        self.sprites = [sprite]
 
     def draw(self):
         while len(self.sprites) < len(self.segments):
@@ -159,19 +181,19 @@ class Caterpillar:
             self.sprites.pop().delete()
         t = self.t
         for i, segment in enumerate(self.segments):
-            sprite = self.sprites[i]
-            wiggle = i % 2 * 20 - 10
-            if i == len(self.segments) - 1:
-                sprite.image = self.head_image
-                wiggle = 0
-            else:
-                sprite.image = self.body_image
-            segment.update_sprite(sprite, t, wiggle=wiggle)
+            segment.update_sprite(
+                self.sprites[-1-i], t,
+                is_head=(i == len(self.segments) - 1),
+                i=i,
+            )
         self.batch.draw()
 
     def turn(self, direction):
-        self.direction = direction
-        self.segments[-1].look(direction)
+        x, y = direction
+        head = self.segments[-1]
+        if x != -head.x or y != -head.y:
+            self.direction = direction
+            self.segments[-1].look(direction)
 
     def move(self, dt):
         self.t += dt
@@ -185,5 +207,6 @@ class Caterpillar:
         self.segments.append(new_head)
         if self.grid[new_head.x, new_head.y] == 16:
             self.grid[new_head.x, new_head.y] = 0
+            self.segments[0].is_fresh_end = True
         else:
             self.segments.popleft()
