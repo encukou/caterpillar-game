@@ -296,37 +296,21 @@ class Cocoon:
         self.debug_batch = pyglet.graphics.Batch()
         self.sprites = []
 
-        counting = False
-        counted = []
+        coccooning = False
         cocoon_tiles = {}
         head = caterpillar.segments[-1]
         xs = set()
         ys = set()
         for segment in caterpillar.segments:
-            if counting:
+            if coccooning:
                 x, y = segment.xy
                 xs.add(x)
                 ys.add(y)
                 cocoon_tiles[x, y] = {
                     segment.direction, flip(segment.from_direction)
                 }
-                counted.append((
-                    x, y,
-                    {segment.direction, flip(segment.from_direction)},
-                ))
-                for direction in segment.direction, flip(segment.from_direction):
-                    sprite = pyglet.sprite.Sprite(
-                        get_image('debugarrow'),
-                        x=(x+1) * TILE_WIDTH,
-                        y=(y+1) * TILE_WIDTH,
-                        batch=self.batch,
-                    )
-                    sprite.scale = TILE_WIDTH / sprite.width
-                    sprite.color = 100, 255, 100
-                    sprite.rotation = DIR_ANGLES[direction]
-                    self.sprites.append(sprite)
             if segment.xy == head.xy:
-                counting = True
+                coccooning = True
 
         if not ys:
             return
@@ -348,7 +332,9 @@ class Cocoon:
                         d.add(RIGHT)
 
         for (x, y), dirs in cocoon_tiles.items():
-            tile_name, tile_rotation = COCCOON_TILES.get(frozenset(dirs), 'solid')
+            tile_name, tile_rotation = COCCOON_TILES.get(
+                frozenset(dirs), 'solid'
+            )
             sprite = pyglet.sprite.Sprite(
                 get_image(tile_name),
                 x=(x+1) * TILE_WIDTH,
@@ -360,18 +346,6 @@ class Cocoon:
             sprite.rotation = tile_rotation
             sprite.opacity = 200
             self.sprites.append(sprite)
-
-
-            for f in dirs:
-                    sprite = pyglet.sprite.Sprite(
-                        get_image('debugarrow'),
-                        x=(x+1) * TILE_WIDTH,
-                        y=(y+1) * TILE_WIDTH,
-                        batch=self.debug_batch,
-                    )
-                    sprite.scale = TILE_WIDTH / sprite.width
-                    sprite.rotation = DIR_ANGLES[f]
-                    self.sprites.append(sprite)
 
     def draw(self):
         self.batch.draw()
