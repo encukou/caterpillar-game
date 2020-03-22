@@ -9,6 +9,11 @@ IMAGE_WIDTH = 64
 SPRITES = {
     'body': (0, 0),
     'head': (1, 0),
+    'solid': (2, 0),
+    'debugarrow': (3, 0),
+    'coccoon_2': (4, 0),
+    'coccoon_3': (5, 0),
+    'coccoon_4': (6, 0),
 }
 
 spritesheet_image = None
