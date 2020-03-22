@@ -45,6 +45,7 @@ class Grid:
         self.height = 17
         self.map = array.array('b', [0] * self.width * self.height)
         self.caterpillar = Caterpillar(self)
+        self.caterpillar_opacity = 255
         self.sprites = {}
         self.batch = pyglet.graphics.Batch()
         self.cocoon = None
@@ -64,17 +65,17 @@ class Grid:
 
         for i in range(11):
             self[self.caterpillar.segments[-1].x+i, self.caterpillar.segments[-1].y] = 16
-        for i in range(10):
-            self.caterpillar.step()
-        for d in (
+        for i, d in enumerate((
             DOWN,
             DOWN, DOWN, LEFT, LEFT, UP, UP, LEFT, LEFT, LEFT, LEFT, DOWN, DOWN,
             RIGHT, RIGHT, DOWN, DOWN, LEFT, LEFT, DOWN, DOWN, DOWN, DOWN,
             RIGHT, RIGHT, UP, UP, RIGHT, RIGHT, DOWN, DOWN, RIGHT, RIGHT, RIGHT, RIGHT,
-            UP, UP, LEFT, LEFT, UP, UP, RIGHT, RIGHT, UP, UP, UP, LEFT
-        ):
+            UP, UP, LEFT, LEFT, UP, UP, RIGHT, RIGHT, UP, UP, UP, #LEFT
+
+            UP, UP, UP, *[LEFT]*10, *[DOWN]*1, *[RIGHT]*7, DOWN
+        )):
             self.caterpillar.turn(d)
-            self.caterpillar.step(force_eat=True)
+            self.caterpillar.step(force_eat=i>2)
 
 
     def draw(self):
@@ -243,12 +244,14 @@ class Caterpillar:
             self.sprites.pop().delete()
         t = self.t
         for i, segment in enumerate(self.segments):
+            sprite = self.sprites[-1-i]
             segment.update_sprite(
-                self.sprites[-1-i],
+                sprite,
                 t=t, ct=self.ct,
                 is_head=(i == len(self.segments) - 1),
                 i=i,
             )
+            sprite.opacity = self.grid.caterpillar_opacity
         self.batch.draw()
 
     def turn(self, direction):
@@ -280,7 +283,7 @@ class Caterpillar:
         new_head = head.grow_head(self.direction)
         for segment in self.segments:
             if segment.xy == new_head.xy:
-                new_head.look(segment.from_direction)
+                new_head.look(segment.direction)
                 self.cocooning = True
         self.segments.append(new_head)
         if self.grid[new_head.x, new_head.y] == 16 or force_eat:
@@ -302,26 +305,30 @@ class Cocoon:
         self.sprites = []
 
         self.sprite_color = 0, 100, 0
+        self.web_opacity = 255
 
-        coccooning = False
         self.cocoon_tiles = cocoon_tiles = {}
         head = caterpillar.segments[-1]
         xs = set()
         ys = set()
-        for segment in caterpillar.segments:
-            xy = segment.xy
-            if coccooning:
-                x, y = xy
-                self.edge_tiles.add(xy)
-                xs.add(x)
-                ys.add(y)
-                cocoon_tiles[x, y] = {
-                    segment.direction, flip(segment.from_direction)
-                }
-            if xy == head.xy:
-                coccooning = True
+        for cocooning in False, True:
+            for segment in caterpillar.segments:
+                xy = segment.xy
+                if cocooning:
+                    x, y = xy
+                    self.edge_tiles.add(xy)
+                    xs.add(x)
+                    ys.add(y)
+                    cocoon_tiles[x, y] = {
+                        segment.direction, flip(segment.from_direction)
+                    }
+                if xy == head.xy:
+                    cocooning = True
+            if ys:
+                break
 
         if not ys:
+            print('OOPS!')
             return
 
         for y in range(min(ys), max(ys)+1):
@@ -340,9 +347,11 @@ class Cocoon:
                     if filling:
                         d.add(RIGHT)
 
+        xmean = sum(xs) / len(xs)
+        ymean = sum(ys) / len(ys)
         for (x, y), dirs in cocoon_tiles.items():
             tile_name, tile_rotation = COCCOON_TILES.get(
-                frozenset(dirs), 'solid'
+                frozenset(dirs), ('solid', 0)
             )
             sprite = pyglet.sprite.Sprite(
                 get_image(tile_name),
@@ -354,6 +363,16 @@ class Cocoon:
             sprite.color = self.sprite_color
             sprite.rotation = tile_rotation
             sprite.opacity = 100
+            sprite._caterpillar_rotation = random.gauss(0, 2) * 180
+            sprite._caterpillar_orig_x = sprite.x
+            sprite._caterpillar_orig_y = sprite.y
+            for i in range(20):
+                sx = random.gauss(x-xmean, 1) * 300
+                sy = random.gauss(y-ymean, 1) * 300
+                sprite._caterpillar_speed_x = sx
+                sprite._caterpillar_speed_y = sy
+                if sx + sy > 300:
+                    break
             self.sprites.append(sprite)
 
         self.green_t, self.white_t, self.end_t = self.add_lines()
@@ -368,7 +387,7 @@ class Cocoon:
                 break
             best_coords = None
             pos, start, fuzz = heappop(heads)
-            for i in range(7):
+            for i in range(20):
                 sx, sy = start
                 candidate_coords = cx, cy = random.choice(edges)
                 sq_distance = abs(sx - cx) ** 2 + abs(sy - cy) ** 2
@@ -406,7 +425,7 @@ class Cocoon:
             return 1, 2, 2.2
         pos, start, fuzz = heappop(heads)
         end = pos / WEAVE_SPEED
-        return end + 1, end + 1.5, end + 1.6
+        return end + 1, end + 1.5, end + 5
 
     def bresenham_check(self, start, end):
         for x, y in bresenham(*start, *end):
@@ -439,10 +458,25 @@ class Cocoon:
             self.sprite_color = sprite_color = a, b, a
             for sprite in self.sprites:
                 sprite.color = sprite_color
+            self.web_opacity = lerp(255, 0, t)
+            self.grid.caterpillar_opacity = lerp(255, 0, t)
             return
         self.sprite_color = sprite_color = 255, 255, 255
+        self.web_opacity = 0
+        self.grid.caterpillar_opacity = 0
         for sprite in self.sprites:
             sprite.color = sprite_color
+        if t < self.end_t:
+            t -= self.white_t
+            t /= (self.end_t - self.white_t)
+            for sprite in self.sprites:
+                sprite.x = sprite._caterpillar_orig_x + t * sprite._caterpillar_speed_x
+                sprite.y = sprite._caterpillar_orig_y + t * sprite._caterpillar_speed_y
+                sprite.rotation = t * sprite._caterpillar_rotation
+                sprite.opacity = lerp(255, 0, t**5)
+            return
+        for sprite in self.sprites:
+            sprite.opacity = 0
 
     def tick(self, dt):
         self.t += dt
@@ -491,3 +525,5 @@ class CocoonLine:
             lg = lerp(255, cg, t)
             lb = lerp(255, cb, t)
             self.sprite.color = lr, lg, lb
+
+        self.sprite.opacity = self.cocoon.web_opacity

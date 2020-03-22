@@ -25,7 +25,12 @@ class Window(pyglet.window.Window):
         self.scene.draw()
 
     def tick(self, dt):
-        self.scene.tick(dt)
+        try:
+            self.scene.tick(dt)
+        except:
+            import traceback
+            traceback.print_exc()
+            raise
 
     def on_key_press(self, key, mod):
         command = KEY_MAP.get(key)
