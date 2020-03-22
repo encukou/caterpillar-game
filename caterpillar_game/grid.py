@@ -1,6 +1,7 @@
 import array
 import dataclasses
 import collections
+import math
 
 import pyglet
 
@@ -18,8 +19,8 @@ DIR_ANGLES = {
 
 class Grid:
     def __init__(self):
-        self.width = 15
-        self.height = 8
+        self.width = 31
+        self.height = 17
         self.map = array.array('b', [0] * self.width * self.height)
         self.caterpillar = Caterpillar(self)
         self.sprites = {}
@@ -32,6 +33,8 @@ class Grid:
         self[10, 5] = 16
         self[11, 5] = 16
         self[12, 5] = 16
+        self[13, 5] = 16
+        self[14, 5] = 16
 
     def draw(self):
         self.batch.draw()
@@ -70,6 +73,7 @@ class Grid:
                 x=(x+1) * TILE_WIDTH, y=(y+1) * TILE_WIDTH,
                 batch=self.batch,
             )
+            sprite.scale = TILE_WIDTH / sprite.width
         elif item:
             sprite.image = get_image(item)
 
@@ -110,6 +114,7 @@ class Segment:
 
     def look(self, direction):
         self.direction = direction
+        #self.from_angle = DIR_ANGLES[direction]
         self.adjust_from_angle()
 
     def adjust_from_angle(self):
@@ -119,12 +124,12 @@ class Segment:
         while self.from_angle - 180 > to_angle:
             self.from_angle -= 360
 
-    def update_sprite(self, sprite, t):
+    def update_sprite(self, sprite, t, wiggle=0):
         sprite.x = (lerp(self.from_x, self.x, t)+1) * TILE_WIDTH
         sprite.y = (lerp(self.from_y, self.y, t)+1) * TILE_WIDTH
         sprite.rotation = lerp(
             self.from_angle, DIR_ANGLES[self.direction], t
-        )
+        ) + math.sin(t * math.tau * 2) * wiggle
 
 
 class Caterpillar:
@@ -144,20 +149,24 @@ class Caterpillar:
 
     def draw(self):
         while len(self.sprites) < len(self.segments):
-            self.sprites.append(pyglet.sprite.Sprite(
+            sprite = pyglet.sprite.Sprite(
                 self.body_image,
                 batch=self.batch,
-            ))
+            )
+            sprite.scale = TILE_WIDTH / sprite.width
+            self.sprites.append(sprite)
         while len(self.sprites) > len(self.segments):
             self.sprites.pop().delete()
         t = self.t
         for i, segment in enumerate(self.segments):
-            sprite = self.sprites[-i]
+            sprite = self.sprites[i]
+            wiggle = i % 2 * 20 - 10
             if i == len(self.segments) - 1:
                 sprite.image = self.head_image
+                wiggle = 0
             else:
                 sprite.image = self.body_image
-            segment.update_sprite(sprite, t)
+            segment.update_sprite(sprite, t, wiggle=wiggle)
         self.batch.draw()
 
     def turn(self, direction):

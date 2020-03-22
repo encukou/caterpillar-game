@@ -20,8 +20,10 @@
   <defs
      id="defs2" />
   <sodipodi:namedview
+     inkscape:snap-bbox-edge-midpoints="true"
+     inkscape:snap-nodes="false"
      inkscape:snap-bbox-midpoints="true"
-     inkscape:bbox-nodes="true"
+     inkscape:bbox-nodes="false"
      inkscape:snap-bbox="true"
      inkscape:window-maximized="1"
      inkscape:window-y="27"
@@ -33,9 +35,9 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="px"
-     inkscape:cy="540.31124"
-     inkscape:cx="41.912705"
-     inkscape:zoom="12.46557"
+     inkscape:cy="493.04887"
+     inkscape:cx="30.753462"
+     inkscape:zoom="29.723978"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      borderopacity="1.0"
@@ -73,11 +75,11 @@
      inkscape:label="Layer 1">
     <rect
        y="124.88333"
-       x="8.2020836"
+       x="7.9375"
        height="8.4666681"
-       width="0.51533127"
+       width="1.0583333"
        id="rect859"
-       style="fill:#00ff00;fill-rule:evenodd;stroke-width:0.670364;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
+       style="fill:#00ff00;fill-rule:evenodd;stroke-width:0.96068;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
     <path
        inkscape:transform-center-x="-0.39532291"
        d="m 12.632253,124.88333 c 0,-4.51375 -5.6806862,4.31288 -3.7222434,0.24613 1.9584424,-4.06675 -1.4006415,5.8779 2.1283504,3.06362 3.528992,-2.81427 -6.9137923,-1.7523 -2.5132112,-2.7567 4.4005812,-1.00441 -5.468815,2.56974 -1.068234,3.57415 4.4005812,1.0044 -2.9406717,-6.49797 0.5883203,-3.68369 3.5289919,2.81428 -5.4188592,-2.67348 -3.4604164,1.39327 1.9584428,4.06674 3.2468347,-6.35053 3.2468347,-1.83678 0,4.51375 -1.2883919,-5.90352 -3.2468347,-1.83677 -1.9584428,4.06675 6.9894083,-1.42101 3.4604164,1.39326 -3.528992,2.81428 3.8122609,-4.68809 -0.5883203,-3.68368 -4.400581,1.0044 5.4688152,4.57855 1.068234,3.57415 -4.4005811,-1.00441 6.0422032,0.0576 2.5132112,-2.75671 -3.5289919,-2.81428 -0.169908,7.13037 -2.1283504,3.06362 -1.9584428,-4.06674 3.7222434,4.75988 3.7222434,0.24613 z"

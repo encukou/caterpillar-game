@@ -2,7 +2,8 @@ import importlib.resources
 
 import pyglet
 
-TILE_WIDTH = 64
+TILE_WIDTH = 32
+IMAGE_WIDTH = 64
 
 SPRITES = {
     'body': (0, 0),
@@ -25,8 +26,8 @@ def get_image(name):
         x = name % 16
         y = name // 16
     region = get_spritesheet_image().get_region(
-        x * TILE_WIDTH, y * TILE_WIDTH, TILE_WIDTH, TILE_WIDTH,
+        x * IMAGE_WIDTH, y * IMAGE_WIDTH, IMAGE_WIDTH, IMAGE_WIDTH,
     )
-    region.anchor_x = TILE_WIDTH//2
-    region.anchor_y = TILE_WIDTH//2
+    region.anchor_x = IMAGE_WIDTH//2
+    region.anchor_y = IMAGE_WIDTH//2
     return region
