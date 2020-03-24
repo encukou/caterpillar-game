@@ -17,7 +17,19 @@ SPRITES = {
     'line': (7, 0),
 }
 
+BUTTERFLY_ANCHORS = {
+    'abdomen': 65,
+    'thorax': 44,
+    'head': 36,
+    'eye': 36,
+    'antenna': 33,
+    'wing': 50,
+}
+
+WING_COUNT = int(importlib.resources.read_text(__name__, 'wingcount.txt'))
+
 spritesheet_image = None
+butterfly_images = {}
 
 def get_spritesheet_image():
     global spritesheet_image
@@ -39,3 +51,18 @@ def get_image(name, anchor_x=0.5, anchor_y=0.5):
     region.anchor_x = round(IMAGE_WIDTH * anchor_x)
     region.anchor_y = round(IMAGE_WIDTH * anchor_y)
     return region
+
+
+def get_butterfly_image(name):
+    try:
+        return butterfly_images[name]
+    except KeyError:
+        if isinstance(name, int):
+            name = f'wing{name:02d}'
+        with importlib.resources.path(__name__, f'{name}.png') as p:
+            image = pyglet.image.load(p)
+        image.anchor_x = image.width // 2
+        y_anchor = BUTTERFLY_ANCHORS.get(name) or BUTTERFLY_ANCHORS['wing']
+        image.anchor_y = image.height // 128 * (128 - y_anchor)
+        butterfly_images[name] = image
+        return image

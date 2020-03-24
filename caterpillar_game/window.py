@@ -10,7 +10,7 @@ KEY_MAP = {
 }
 
 class Window(pyglet.window.Window):
-    def __init__(self, initial_scene):
+    def __init__(self, initial_scene, **kwargs):
         super().__init__(width=1024, height=576, resizable=True)
         self.scene = initial_scene
 
@@ -22,15 +22,15 @@ class Window(pyglet.window.Window):
         self.clear()
 
         # Draw current scene
-        self.scene.draw()
-
-    def tick(self, dt):
         try:
-            self.scene.tick(dt)
+            self.scene.draw()
         except:
             import traceback
             traceback.print_exc()
             raise
+
+    def tick(self, dt):
+        self.scene.tick(dt)
 
     def on_key_press(self, key, mod):
         command = KEY_MAP.get(key)
