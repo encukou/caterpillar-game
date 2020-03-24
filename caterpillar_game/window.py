@@ -2,6 +2,7 @@ import pyglet
 
 KEY_MAP = {
     pyglet.window.key.F: 'fullscreen',
+    pyglet.window.key.S: 'screenshot',
     pyglet.window.key.ESCAPE: 'end',
     pyglet.window.key.LEFT: 'left',
     pyglet.window.key.RIGHT: 'right',
@@ -38,5 +39,7 @@ class Window(pyglet.window.Window):
             self.set_fullscreen(not self.fullscreen)
         elif command == 'end':
             raise KeyboardInterrupt()
+        elif command == 'screenshot':
+            pyglet.image.get_buffer_manager().get_color_buffer().save('screenshot.png')
         elif command is not None:
             self.scene.handle_command(command)

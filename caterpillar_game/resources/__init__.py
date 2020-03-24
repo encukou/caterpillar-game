@@ -6,6 +6,8 @@ import pyglet
 TILE_WIDTH = 32
 IMAGE_WIDTH = 64
 
+BUTTERFLY_HEIGHT = 512
+
 SPRITES = {
     'body': (0, 0),
     'head': (1, 0),
@@ -18,12 +20,13 @@ SPRITES = {
 }
 
 BUTTERFLY_ANCHORS = {
-    'abdomen': 65,
-    'thorax': 44,
-    'head': 36,
-    'eye': 36,
-    'antenna': 33,
-    'wing': 50,
+    'abdomen': 65/128,
+    'thorax': 44/128,
+    'head': 36/128,
+    'eye': 36/128,
+    'antenna': 33/128,
+    'wing': 50/128,
+    'x-wing': 4/128,
 }
 
 WING_COUNT = int(importlib.resources.read_text(__name__, 'wingcount.txt'))
@@ -57,12 +60,10 @@ def get_butterfly_image(name):
     try:
         return butterfly_images[name]
     except KeyError:
-        if isinstance(name, int):
-            name = f'wing{name:02d}'
         with importlib.resources.path(__name__, f'{name}.png') as p:
             image = pyglet.image.load(p)
         image.anchor_x = image.width // 2
-        y_anchor = BUTTERFLY_ANCHORS.get(name) or BUTTERFLY_ANCHORS['wing']
-        image.anchor_y = image.height // 128 * (128 - y_anchor)
+        y_anchor = BUTTERFLY_ANCHORS.get(name)
+        image.anchor_y = int(image.height * (1 - y_anchor))
         butterfly_images[name] = image
         return image
