@@ -1,5 +1,6 @@
 import importlib.resources
 import functools
+import tempfile
 
 import pyglet
 
@@ -33,6 +34,13 @@ WING_COUNT = int(importlib.resources.read_text(__name__, 'wingcount.txt'))
 
 spritesheet_image = None
 butterfly_images = {}
+
+
+# Pyglet can only load fonts from an actual file
+_font_file = tempfile.NamedTemporaryFile(suffix='Aldrich-Regular.ttf')
+_font_file.write(importlib.resources.read_binary(__name__, 'Aldrich-Regular.ttf'))
+pyglet.font.add_file(_font_file.name)
+FONT = pyglet.font.load('Aldrich')
 
 def get_spritesheet_image():
     global spritesheet_image
