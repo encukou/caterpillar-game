@@ -9,6 +9,7 @@ import pyglet
 from bresenham import bresenham
 
 from .resources import get_image, TILE_WIDTH
+from .util import pushed_matrix
 
 SPEED = 2
 WEAVE_SPEED = 50
@@ -27,14 +28,14 @@ RIGHT = +1, 0
 
 
 COCCOON_TILES = {
-    frozenset({UP, RIGHT}): ('coccoon_2', 0),
-    frozenset({RIGHT, DOWN}): ('coccoon_2', 90),
-    frozenset({DOWN, LEFT}): ('coccoon_2', 180),
-    frozenset({LEFT, UP}): ('coccoon_2', 270),
-    frozenset({LEFT, UP, RIGHT}): ('coccoon_3', 0),
-    frozenset({UP, RIGHT, DOWN}): ('coccoon_3', 90),
-    frozenset({RIGHT, DOWN, LEFT}): ('coccoon_3', 180),
-    frozenset({DOWN, LEFT, UP}): ('coccoon_3', 270),
+    frozenset({RIGHT, DOWN}): ('coccoon_2', 0),
+    frozenset({DOWN, LEFT}): ('coccoon_2', 90),
+    frozenset({LEFT, UP}): ('coccoon_2', 180),
+    frozenset({UP, RIGHT}): ('coccoon_2', 270),
+    frozenset({RIGHT, DOWN, LEFT}): ('coccoon_3', 0),
+    frozenset({DOWN, LEFT, UP}): ('coccoon_3', 90),
+    frozenset({LEFT, UP, RIGHT}): ('coccoon_3', 180),
+    frozenset({UP, RIGHT, DOWN}): ('coccoon_3', 270),
     frozenset({LEFT, UP, RIGHT, DOWN}): ('solid', 0),
 }
 
@@ -49,12 +50,11 @@ class Grid:
         self.sprites = {}
         self.batch = pyglet.graphics.Batch()
         self.cocoon = None
-        for x in range(self.width):
-            for y in range(self.height):
-                if (x + y) % 2:
-                    self[x, y] = 17
+        self.tiles = pyglet.image.TileableTexture. create_for_image(
+            get_image('tile', 0, 0, 2, 2)
+        )
+
         self[0, 2] = 16
-        self[10, 5] = 16
         self[11, 5] = 16
         self[12, 5] = 16
         self[13, 5] = 16
@@ -63,26 +63,34 @@ class Grid:
         self[16, 5] = 16
         self[17, 5] = 16
 
-        for i in range(11):
+        for i in range(1, 11):
             self[self.caterpillar.segments[-1].x+i, self.caterpillar.segments[-1].y] = 16
         for i, d in enumerate((
-            DOWN,
-            DOWN, DOWN, LEFT, LEFT, UP, UP, LEFT, LEFT, LEFT, LEFT, DOWN, DOWN,
-            RIGHT, RIGHT, DOWN, DOWN, LEFT, LEFT, DOWN, DOWN, DOWN, DOWN,
-            RIGHT, RIGHT, UP, UP, RIGHT, RIGHT, DOWN, DOWN, RIGHT, RIGHT, RIGHT, RIGHT,
-            UP, UP, LEFT, LEFT, UP, UP, RIGHT, RIGHT, UP, UP, UP, #LEFT
-
-            UP, UP, UP, *[LEFT]*10, *[DOWN]*1, *[RIGHT]*7, DOWN
+            #DOWN,
+            #DOWN, DOWN, LEFT, LEFT, UP, UP, LEFT, LEFT, LEFT, LEFT, DOWN, DOWN,
+            #RIGHT, RIGHT, DOWN, DOWN, LEFT, LEFT, DOWN, DOWN, DOWN, DOWN,
+            #RIGHT, RIGHT, UP, UP, RIGHT, RIGHT, DOWN, DOWN, RIGHT, RIGHT, RIGHT, RIGHT,
+            #UP, UP, LEFT, LEFT, UP, UP, RIGHT, RIGHT, UP, UP, UP, #LEFT
+            #UP, UP, UP, *[LEFT]*10, *[DOWN]*1, *[RIGHT]*7, DOWN
         )):
             self.caterpillar.turn(d)
             self.caterpillar.step(force_eat=i>2)
 
 
     def draw(self):
-        self.batch.draw()
-        self.caterpillar.draw()
-        if self.cocoon:
-            self.cocoon.draw()
+        with pushed_matrix():
+            pyglet.gl.glTranslatef(TILE_WIDTH/2, TILE_WIDTH/2, 1)
+            pyglet.gl.glScalef(1/2, 1/2, 1)
+            self.tiles.blit_tiled(
+                0, 0, 0,
+                self.width * TILE_WIDTH * 2, self.height * TILE_WIDTH * 2,
+            )
+            pyglet.gl.glScalef(2, 2, 1)
+            pyglet.gl.glTranslatef(TILE_WIDTH/2, TILE_WIDTH/2, 0)
+            self.batch.draw()
+            self.caterpillar.draw()
+            if self.cocoon:
+                self.cocoon.draw()
 
     def tick(self, dt):
         self.caterpillar.tick(dt * SPEED)
@@ -116,7 +124,7 @@ class Grid:
         elif item and not sprite:
             sprite = self.sprites[x, y] = pyglet.sprite.Sprite(
                 get_image(item),
-                x=(x+1) * TILE_WIDTH, y=(y+1) * TILE_WIDTH,
+                x=x * TILE_WIDTH, y=y * TILE_WIDTH,
                 batch=self.batch,
             )
             sprite.scale = TILE_WIDTH / sprite.width
@@ -185,12 +193,12 @@ class Segment:
 
     def update_sprite(self, sprite, t, is_head, i, ct):
         if self.is_fresh_end:
-            sprite.x = (self.x+1) * TILE_WIDTH
-            sprite.y = (self.y+1) * TILE_WIDTH
+            sprite.x = self.x * TILE_WIDTH
+            sprite.y = self.y * TILE_WIDTH
             sprite.scale = (t/2+1/2) * TILE_WIDTH / sprite.image.width
         else:
-            sprite.x = (lerp(self.from_x, self.x, t)+1) * TILE_WIDTH
-            sprite.y = (lerp(self.from_y, self.y, t)+1) * TILE_WIDTH
+            sprite.x = lerp(self.from_x, self.x, t) * TILE_WIDTH
+            sprite.y = lerp(self.from_y, self.y, t) * TILE_WIDTH
             sprite.scale = TILE_WIDTH / sprite.image.width
         if is_head:
             wiggle = 2
@@ -355,8 +363,8 @@ class Cocoon:
             )
             sprite = pyglet.sprite.Sprite(
                 get_image(tile_name),
-                x=(x+1) * TILE_WIDTH,
-                y=(y+1) * TILE_WIDTH,
+                x=x * TILE_WIDTH,
+                y=y * TILE_WIDTH,
                 batch=self.batch,
             )
             sprite.scale = TILE_WIDTH / sprite.width
@@ -491,8 +499,8 @@ class CocoonLine:
         self.length = length
         self.sprite = sprite = pyglet.sprite.Sprite(
             get_image('line', 0.5, 0),
-            x=(self.sx+1) * TILE_WIDTH,
-            y=(self.sy+1) * TILE_WIDTH,
+            x=self.sx * TILE_WIDTH,
+            y=self.sy * TILE_WIDTH,
             batch=batch,
         )
         sprite.rotation = 90 - math.degrees(math.atan2(
