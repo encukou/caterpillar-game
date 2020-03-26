@@ -100,7 +100,7 @@ class Butterfly:
         age = self.age
         if self.age < 1:
             t = min(self.age, t)
-        wing_scale = abs(math.sin(t*math.tau/4))**3 * 0.99 + 0.01
+        wing_scale = 1 - abs(math.sin(t*math.tau/4))**3 * 0.99
         x_wing = BUTTERFLY_ANCHORS['x-wing'] * BUTTERFLY_HEIGHT
         pyglet.gl.glPushMatrix()
         try:
