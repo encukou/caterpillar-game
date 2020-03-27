@@ -109,7 +109,7 @@ class Cocoon:
                     break
             self.sprites.append(sprite)
 
-            score = 6
+            score = 4
             if (x, y) in self.edge_tiles:
                 score += 10
             self.pending_scores.append((score, x, y))
@@ -199,6 +199,11 @@ class Cocoon:
         for sprite in self.sprites:
             sprite.opacity = 255
         if t < self.white_t:
+            if self.pending_scores:
+                self.white_t += 1
+                self.end_t += 1
+                self.green_t += 1
+                return
             t -= self.green_t
             t /= (self.white_t - self.green_t)
             a = int(lerp(0, 255, t))

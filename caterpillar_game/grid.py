@@ -13,7 +13,8 @@ SPEED = 2
 
 
 class Grid:
-    def __init__(self):
+    def __init__(self, state):
+        self.state = state
         self.width = 31
         self.height = 17
         self.tiles = {}
@@ -41,11 +42,14 @@ class Grid:
             self[x, y] = 'flower'
 
         head_x, head_y = self.caterpillar.segments[-1].xy
-        self[head_x, head_y] = None
-        self[head_x + 1, head_y] = None
+        self[head_x - 1, head_y] = None
+        self[head_x + 0, head_y] = None
+        self[head_x + 1, head_y] = 'grass'
         self[head_x + 2, head_y] = 'grass'
-        self[head_x + 3, head_y] = 'flower'
-        self[head_x + 4, head_y] = None
+        self[head_x + 2, head_y].grow_flower()
+        self[head_x + 3, head_y] = None
+        self[head_x + 0, head_y - 1] = 'grass'
+        self[head_x + 0, head_y + 1] = 'grass'
 
         for i, d in enumerate((
             #DOWN,
@@ -68,6 +72,7 @@ class Grid:
             x=(self.width - .5) * TILE_WIDTH,
             y=(self.height - .5) * TILE_WIDTH + HALF_FONT_INFO.baseline,
         )
+        self.t = 1
 
     def add_a_flower(self, grass_only=False):
         if grass_only == False:

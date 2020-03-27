@@ -9,11 +9,11 @@ import pyglet
 import numpy
 
 from . import resources
-from .util import get_color
+from .util import get_color, decode_hue
 
 
 def get_wing_matrix():
-    """Return white wing matrix with axes (width, height, plane, channel)"""
+    """Return white wing matrix with axes (width, height, patch, channel)"""
     wing_matrix = numpy.frombuffer(
         importlib.resources.read_binary(resources, f'wings.dat'),
         dtype='uint8',
@@ -31,7 +31,7 @@ wing_where = wing_alpha > 0
 
 wing_size = wing_matrix.shape[0]
 
-WING_PIECE_COUNT = wing_matrix.shape[2]
+WING_PATCH_COUNT = wing_matrix.shape[2]
 
 # Using threads for CPU-bound task (numpy number crunching);
 # use a relatively small number of threads
@@ -48,11 +48,11 @@ pool = concurrent.futures.ThreadPoolExecutor(max_workers=thread_count)
 def _get_array(hues):
     time.sleep(0)
     hues = list(hues)
-    while len(hues) < WING_PIECE_COUNT:
-        hues.append(0)
+    while len(hues) < WING_PATCH_COUNT:
+        hues.append(' ')
     colors = numpy.array([
         get_color(hue, 0.9) + (255,)
-        for i, hue in zip(range(WING_PIECE_COUNT), hues)
+        for i, hue in zip(range(WING_PATCH_COUNT), hues)
     ], dtype='uint16')
     size = wing_matrix.shape[0]
     colored = numpy.multiply(wing_matrix, colors, dtype='uint16')

@@ -6,38 +6,75 @@ import pyglet
 
 from .resources import get_butterfly_image, get_image
 from .resources import BUTTERFLY_ANCHORS, BUTTERFLY_HEIGHT
-from .wing import start_wing_generation, get_wing_image, WING_PIECE_COUNT
+from .wing import start_wing_generation, get_wing_image, WING_PATCH_COUNT
+from .util import random_hue
 
 BODY_COLOR = (61, 43, 6)
 
 class Demo:
     def __init__(self):
         self.butterflies = [
-            Butterfly(
-                [
-                    random.uniform(0, 1)
-                    for i in range(WING_PIECE_COUNT)
-                ],
+            ButterflySprite(
+                Butterfly(''.join(
+                    random_hue()
+                    for i in range(WING_PATCH_COUNT)
+                )),
                 x=512, y=356,
             )
-        ]
+        ]*0
         self.bg = pyglet.sprite.Sprite(get_image('solid'))
         self.bg.color = 200, 200, 200
         self.bg.scale = 100
         self.t = 0
-
+        '''
         coords = [(x, y) for x in range(10) for y in range(10)]
         random.shuffle(coords)
         for x, y in coords:
-            butterfly = Butterfly(
-                [
-                    random.uniform(0, 1)
-                    for i in range(WING_PIECE_COUNT)
-                ],
+            butterfly = ButterflySprite(
+                Butterfly(''.join(
+                    random_hue()
+                    for i in range(WING_PATCH_COUNT)
+                )),
                 scale=0.1,
                 x=x*102+51, y=y*57+35,
             )
             self.butterflies.append(butterfly)
+        '''
+        _b = {}
+        for y in range(10):
+            x = 0
+            if y == 0:
+                butterfly = Butterfly(' ' * WING_PATCH_COUNT)
+            else:
+                butterfly = Butterfly(random_hue() * WING_PATCH_COUNT)
+            sprite = ButterflySprite(
+                butterfly,
+                scale=0.1,
+                x=x*102+51, y=y*57+35,
+            )
+            self.butterflies.append(sprite)
+            _b[x, y] = butterfly
+
+        for x in range(1, 10):
+            plus_hues = ''.join(
+                random_hue() for i in range(WING_PATCH_COUNT)
+            )
+            ys = list(range(10))
+            random.shuffle(ys)
+            for y in ys:
+                from .egg import Egg
+                if x % 2:
+                    d = -1
+                else:
+                    d = 1
+                butterfly = Egg([_b[x-1, y], _b[x-1, (y+d)%10]]).make_butterfly(plus_hues)
+                sprite = ButterflySprite(
+                    butterfly,
+                    scale=0.1,
+                    x=x*102+51, y=y*57+35,
+                )
+                self.butterflies.append(sprite)
+                _b[x, y] = butterfly
 
     def tick(self, dt):
         if dt > 0.5:
@@ -49,9 +86,22 @@ class Demo:
         for i, butterfly in enumerate(reversed(self.butterflies)):
             butterfly.draw(self.t + i * 1/9 * (1 + i*0.01), partial=i%7==0)
 
-
 class Butterfly:
-    def __init__(self, hues, x=0, y=0, scale=1):
+    def __init__(self, hues=' ' * WING_PATCH_COUNT):
+        self.hues = hues
+
+    def to_dict(self):
+        return {
+            'wing': str(self.hues),
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(hues = data['hues'])
+
+
+class ButterflySprite:
+    def __init__(self, butterfly, x=0, y=0, scale=1):
         self.wing_batch = pyglet.graphics.Batch()
         self.body_batch = pyglet.graphics.Batch()
         self.sprites = []
@@ -69,7 +119,7 @@ class Butterfly:
         self.scale = scale
         self.x = x
         self.y = y
-        self.wing_gen = start_wing_generation(hues)
+        self.wing_gen = start_wing_generation(butterfly.hues)
         self.alive_since = None
 
     @property

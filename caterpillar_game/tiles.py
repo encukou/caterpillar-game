@@ -4,7 +4,7 @@ import random
 import pyglet
 
 from .resources import get_image, TILE_WIDTH
-from .util import UP, DOWN, LEFT, RIGHT, get_color, lerp
+from .util import UP, DOWN, LEFT, RIGHT, get_color, lerp, random_hue
 
 @dataclasses.dataclass
 class Tile:
@@ -111,7 +111,7 @@ class Flower(Tile):
         self.start_t = self.grid.t
         self.end_t = None
         self.grown = False
-        self.hue = random.uniform(0, 10)
+        self.hue = random_hue()
         self.stem_sprite = self.make_sprite(
             get_image('flower-stem', anchor_y=1/8),
             y = (self.y - 3/8) * TILE_WIDTH,
