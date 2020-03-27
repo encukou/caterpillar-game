@@ -1,9 +1,10 @@
 import dataclasses
+import random
 
 import pyglet
 
 from .resources import get_image, TILE_WIDTH
-from .util import UP, DOWN, LEFT, RIGHT
+from .util import UP, DOWN, LEFT, RIGHT, get_color, lerp
 
 @dataclasses.dataclass
 class Tile:
@@ -21,7 +22,7 @@ class Tile:
     def delete(self):
         self.active = False
 
-    def eol_tick(self, dt):
+    def tick(self, dt):
         pass
 
     def is_edge(self, caterpillar):
@@ -38,6 +39,8 @@ class Tile:
         sprite.scale = 1/2
         return sprite
 
+    def grow_flower(self):
+        return False
 
 empty = Tile(None, -1, -1)
 
@@ -46,6 +49,8 @@ class Edge(Tile):
         return True
 
 edge = Edge(None, -1, -1)
+
+groups = [pyglet.graphics.OrderedGroup(i) for i in range(4)]
 
 tile_classes = {}
 
@@ -63,25 +68,101 @@ def register(name):
 @register('grass')
 class Grass(Tile):
     def prepare(self):
-        self.sprite = self.make_sprite(get_image('grass'))
+        self.sprite = self.make_sprite(get_image('grass'), group=groups[0])
+        self.end_t = None
+        self.flower = None
 
     def enter(self, caterpillar):
+        if self.flower:
+            return self.flower.enter(caterpillar)
         self.grid[self.x, self.y] = None
+        if random.randrange(3) == 0:
+            self.grid.add_a_flower(grass_only=True)
         return True
 
     def delete(self):
         self.end_t = self.grid.t
+        if self.flower:
+            self.flower.delete()
 
-    def eol_tick(self, dt):
-        t = self.grid.t - self.end_t
-        if t > 1:
-            self.sprite.delete()
-            self.sprite = None
+    def tick(self, dt):
+        if self.flower:
+            self.flower.tick(dt)
+        if self.end_t is not None:
+            t = (self.grid.t - self.end_t) * 2
+            if t > 1:
+                self.sprite.delete()
+                self.sprite = None
+                return False
+            self.sprite.scale = (1 - t) / 2
+            return True
+
+    def grow_flower(self):
+        if self.flower:
             return False
-        self.sprite.scale = (1 - t) / 2
+        self.flower = Flower(self.grid, self.x, self.y)
         return True
 
 
 @register('flower')
 class Flower(Tile):
-    pass
+    def prepare(self):
+        self.start_t = self.grid.t
+        self.end_t = None
+        self.grown = False
+        self.hue = random.uniform(0, 10)
+        self.stem_sprite = self.make_sprite(
+            get_image('flower-stem', anchor_y=1/8),
+            y = (self.y - 3/8) * TILE_WIDTH,
+            group=groups[1],
+        )
+        self.petals_sprite = self.make_sprite(
+            get_image('flower-petals'),
+            group=groups[2],
+            y = (self.y + 1/8) * TILE_WIDTH,
+        )
+        self.petals_sprite.color = get_color(self.hue, 0.5)
+        self.center_sprite = self.make_sprite(
+            get_image('flower-center'),
+            group=groups[3],
+            y = (self.y + 1/8) * TILE_WIDTH,
+        )
+        self.center_sprite.color = get_color(self.hue, 0.2)
+
+    def enter(self, caterpillar):
+        self.grid[self.x, self.y] = None
+        caterpillar.collected_hues.append(self.hue)
+        self.grid.add_a_flower()
+        if random.randrange(3) == 0:
+            self.grid.add_a_flower(grass_only=True)
+        return True
+
+    def delete(self):
+        self.end_t = self.grid.t
+
+    def tick(self, dt):
+        self.petals_sprite.rotation += dt * 40
+        if self.end_t is not None:
+            t = (self.grid.t - self.end_t) * 2
+            if t > 1:
+                self.stem_sprite.delete()
+                self.petals_sprite.delete()
+                self.center_sprite.delete()
+                return False
+            scale = (1 - t) / 2
+            self.stem_sprite.scale_y = scale
+            self.petals_sprite.scale = scale
+            self.center_sprite.scale = scale
+            return True
+        elif not self.grown:
+            t = self.grid.t - self.start_t
+            if t > 1:
+                t = 1
+                self.grown = True
+            scale = t / 2
+            self.stem_sprite.scale_y = scale
+            self.petals_sprite.scale = scale
+            self.center_sprite.scale = scale
+            y = (self.y + lerp(-3/8, 1/8, t)) * TILE_WIDTH
+            self.petals_sprite.y = y
+            self.center_sprite.y = y

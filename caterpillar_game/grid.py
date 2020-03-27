@@ -36,8 +36,10 @@ class Grid:
         for x, y in (0, 2), (11, 5), (17, 5):
             self[x, y] = 'flower'
 
-        for i in range(1, 11):
+        for i in range(3, 5):
             self[self.caterpillar.segments[-1].x+i, self.caterpillar.segments[-1].y] = 'flower'
+        for i in range(5):
+            self.add_a_flower()
         for i, d in enumerate((
             #DOWN,
             #DOWN, DOWN, LEFT, LEFT, UP, UP, LEFT, LEFT, LEFT, LEFT, DOWN, DOWN,
@@ -49,6 +51,26 @@ class Grid:
             self.caterpillar.turn(d)
             self.caterpillar.step(force_eat=i>2)
 
+    def add_a_flower(self, grass_only=False):
+        if grass_only == False:
+            if self.add_a_flower(grass_only=True):
+                return True
+        xs = list(range(self.width))
+        ys = list(range(self.width))
+        random.shuffle(xs)
+        random.shuffle(ys)
+        caterpillar_xys = set(s.xy for s in self.caterpillar.segments)
+        for x in xs:
+            for y in ys:
+                if (x, y) in caterpillar_xys:
+                    continue
+                tile = self.tiles.get((x, y))
+                if tile is None:
+                    if not grass_only:
+                        self[x, y] = 'flower'
+                        return True
+                elif tile.grow_flower():
+                    return True
 
     def draw(self):
         with pushed_matrix():
@@ -70,7 +92,9 @@ class Grid:
         self.caterpillar.tick(dt * SPEED)
         if self.cocoon:
             self.cocoon.tick(dt)
-        self.eol_tiles = [tile for tile in self.eol_tiles if tile.eol_tick(dt)]
+        self.eol_tiles = [tile for tile in self.eol_tiles if tile.tick(dt)]
+        for tile in self.tiles.values():
+            tile.tick(dt)
 
     def handle_command(self, command):
         if command == 'up':

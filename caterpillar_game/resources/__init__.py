@@ -18,8 +18,10 @@ SPRITES = {
     'coccoon_4': (6, 0),
     'solid': (7, 0),
 
-    'flower': (1, 0),
+    'flower-stem': (0, 1),
     'grass': (1, 1),
+    'flower-petals': (3, 1),
+    'flower-center': (4, 1),
 
     'egg': (0, 2),
     'egg-space': (1, 2),

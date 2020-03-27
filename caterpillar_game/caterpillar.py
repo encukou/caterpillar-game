@@ -96,7 +96,7 @@ class Caterpillar:
         dx, dy = direction
         self.segments = collections.deque()
         self.segments.append(Segment.make_initial(
-            grid.width // 2, grid.height // 2+3, self.direction,
+            grid.width // 2 - dx, grid.height // 2 - dy, self.direction,
         ))
         self.body_image = get_image('body')
         self.head_image = get_image('head')
@@ -110,6 +110,7 @@ class Caterpillar:
         sprite.color = 0, 255, 0
         sprite.scale = TILE_WIDTH / sprite.width
         self.sprites = [sprite]
+        self.collected_hues = []
 
     def draw(self):
         while len(self.sprites) < len(self.segments):

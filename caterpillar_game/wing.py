@@ -1,6 +1,5 @@
 import png
 import importlib.resources
-import colorsys
 import array
 import concurrent.futures
 import time
@@ -10,6 +9,7 @@ import pyglet
 import numpy
 
 from . import resources
+from .util import get_color
 
 
 def get_wing_matrix():
@@ -51,7 +51,7 @@ def _get_array(hues):
     while len(hues) < WING_PIECE_COUNT:
         hues.append(0)
     colors = numpy.array([
-        tuple(int(c * 255) for c in colorsys.hsv_to_rgb(hue, 0.9, 1)) + (255,)
+        get_color(hue, 0.9) + (255,)
         for i, hue in zip(range(WING_PIECE_COUNT), hues)
     ], dtype='uint16')
     size = wing_matrix.shape[0]
