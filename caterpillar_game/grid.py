@@ -7,6 +7,7 @@ from .resources import get_image, TILE_WIDTH
 from .util import pushed_matrix, UP, DOWN, LEFT, RIGHT
 from .caterpillar import Caterpillar
 from .coccoon import Cocoon
+from . import tiles
 
 SPEED = 2
 
@@ -15,27 +16,28 @@ class Grid:
     def __init__(self):
         self.width = 31
         self.height = 17
-        self.map = array.array('b', [0] * self.width * self.height)
+        self.tiles = {}
         self.caterpillar = Caterpillar(self)
         self.caterpillar_opacity = 255
         self.sprites = {}
+        self.eol_tiles = []
         self.batch = pyglet.graphics.Batch()
+        self.t = 0
         self.cocoon = None
-        self.tiles = pyglet.image.TileableTexture. create_for_image(
+        self.background = pyglet.image.TileableTexture. create_for_image(
             get_image('tile', 0, 0, 2, 2)
         )
 
-        self[0, 2] = 16
-        self[11, 5] = 16
-        self[12, 5] = 16
-        self[13, 5] = 16
-        self[14, 5] = 16
-        self[15, 5] = 16
-        self[16, 5] = 16
-        self[17, 5] = 16
+        for x in range(self.width):
+            for y in range(self.height):
+                if random.randrange(7) < 2:
+                    self[x, y] = 'grass'
+
+        for x, y in (0, 2), (11, 5), (17, 5):
+            self[x, y] = 'flower'
 
         for i in range(1, 11):
-            self[self.caterpillar.segments[-1].x+i, self.caterpillar.segments[-1].y] = 16
+            self[self.caterpillar.segments[-1].x+i, self.caterpillar.segments[-1].y] = 'flower'
         for i, d in enumerate((
             #DOWN,
             #DOWN, DOWN, LEFT, LEFT, UP, UP, LEFT, LEFT, LEFT, LEFT, DOWN, DOWN,
@@ -52,7 +54,7 @@ class Grid:
         with pushed_matrix():
             pyglet.gl.glTranslatef(TILE_WIDTH/2, TILE_WIDTH/2, 1)
             pyglet.gl.glScalef(1/2, 1/2, 1)
-            self.tiles.blit_tiled(
+            self.background.blit_tiled(
                 0, 0, 0,
                 self.width * TILE_WIDTH * 2, self.height * TILE_WIDTH * 2,
             )
@@ -64,9 +66,11 @@ class Grid:
                 self.cocoon.draw()
 
     def tick(self, dt):
+        self.t += dt
         self.caterpillar.tick(dt * SPEED)
         if self.cocoon:
             self.cocoon.tick(dt)
+        self.eol_tiles = [tile for tile in self.eol_tiles if tile.eol_tick(dt)]
 
     def handle_command(self, command):
         if command == 'up':
@@ -81,26 +85,19 @@ class Grid:
     def __getitem__(self, x_y):
         x, y = x_y
         if x < 0 or y < 0 or x >= self.width or y >= self.height:
-            return 0
-        return self.map[y * self.width + x]
+            return tiles.edge
+        return self.tiles.get(x_y, tiles.empty)
 
     def __setitem__(self, x_y, item):
+        eol_tile = self.tiles.pop(x_y, None)
+        if eol_tile:
+            self.eol_tiles.append(eol_tile)
+            eol_tile.delete()
         x, y = x_y
         if x < 0 or y < 0 or x >= self.width or y >= self.height:
             return
-        self.map[y * self.width + x] = item
-        sprite = self.sprites.get(x_y)
-        if sprite and not item:
-            self.sprites.pop(x_y).delete()
-        elif item and not sprite:
-            sprite = self.sprites[x, y] = pyglet.sprite.Sprite(
-                get_image(item),
-                x=x * TILE_WIDTH, y=y * TILE_WIDTH,
-                batch=self.batch,
-            )
-            sprite.scale = TILE_WIDTH / sprite.width
-        elif item:
-            sprite.image = get_image(item)
+        if item is not None:
+            self.tiles[x_y] = tiles.new(item, self, x, y)
 
     def add_cocoon(self, caterpillar):
         self.cocoon = Cocoon(self, caterpillar)

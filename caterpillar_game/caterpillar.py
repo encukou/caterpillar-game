@@ -10,8 +10,8 @@ from .util import lerp
 
 DIR_ANGLES = {
     (0, +1): 0,
-    (0, -1): 180,
     (+1, 0): 90,
+    (0, -1): 180,
     (-1, 0): -90,
 }
 
@@ -161,13 +161,22 @@ class Caterpillar:
     def step(self, force_eat=False):
         head = self.segments[-1]
         new_head = head.grow_head(self.direction)
+        head_tile = self.grid[new_head.x, new_head.y]
+        if head_tile.is_edge(self):
+            xd, yd = self.direction
+            possibilities = [(-yd, xd), (yd, -xd)]
+            random.shuffle(possibilities)
+            for nxd, nyd in possibilities:
+                if not self.grid[head.x + nxd, head.y + nyd].is_edge(self):
+                    self.turn((nxd, nyd))
+                    return self.step(force_eat=force_eat)
         for segment in self.segments:
             if segment.xy == new_head.xy:
                 new_head.look(segment.direction)
                 self.cocooning = True
         self.segments.append(new_head)
-        if self.grid[new_head.x, new_head.y] == 16 or force_eat:
-            self.grid[new_head.x, new_head.y] = 0
+        should_grow = head_tile.enter(self)
+        if should_grow:
             self.segments[0].is_fresh_end = True
         else:
             self.segments.popleft()

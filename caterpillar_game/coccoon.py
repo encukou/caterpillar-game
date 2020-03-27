@@ -132,6 +132,7 @@ class Cocoon:
                     best_coords = candidate_coords
             if best_coords is not None:
                 distance = math.sqrt(best_sq_distance)
+                duration = math.sqrt(distance)
                 bx, by = best_coords
                 fx, fy = fuzz
                 new_fuzz = random.uniform(-.5, .5), random.uniform(-.5, .5)
@@ -141,7 +142,7 @@ class Cocoon:
                     (sx + fx, sy + fy),
                     (bx + nfx, by + nfy),
                     start_t=pos,
-                    duration=distance,
+                    duration=duration,
                     batch=self.line_batch,
                     length=distance,
                 ))
@@ -149,9 +150,9 @@ class Cocoon:
                 covered.add((start, best_coords))
                 covered.add((best_coords, start))
                 if new_head_counter <= 0:
-                    heappush(heads, (pos+distance, best_coords, new_fuzz))
+                    heappush(heads, (pos+duration, best_coords, new_fuzz))
                     new_head_counter = 5
-                heappush(heads, (pos+distance, best_coords, new_fuzz))
+                heappush(heads, (pos+duration, best_coords, new_fuzz))
         if not heads:
             return 1, 2, 2.2
         pos, start, fuzz = heappop(heads)
