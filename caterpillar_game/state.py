@@ -60,3 +60,9 @@ class GameState:
             if count >= max:
                 return count
         return count
+
+    def choose_egg(self):
+        self.adjust()
+        for brood in reversed(self.broods):
+            for egg in brood:
+                return egg

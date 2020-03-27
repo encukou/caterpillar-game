@@ -7,6 +7,7 @@ from bresenham import bresenham
 
 from .resources import get_image, TILE_WIDTH
 from .util import lerp, flip, UP, DOWN, LEFT, RIGHT
+from .butterfly import ButterflySprite
 
 WEAVE_SPEED = 50
 
@@ -27,6 +28,8 @@ class Cocoon:
     def __init__(self, grid, caterpillar):
         self.grid = grid
         self.caterpillar = caterpillar
+        self.butterfly = caterpillar.make_butterfly()
+        self.butterfly_sprite = ButterflySprite(self.butterfly, scale=0)
         self.edge_tiles = set()
         self.lines = []
         self.t = 0
@@ -63,7 +66,8 @@ class Cocoon:
 
         if not ys:
             print('OOPS!')
-            return
+            self.xmean = self.ymean = 0
+            self.update_t()
 
         for y in range(min(ys), max(ys)+1):
             filling = set()
@@ -81,8 +85,8 @@ class Cocoon:
                     if filling:
                         d.add(RIGHT)
 
-        xmean = sum(xs) / len(xs)
-        ymean = sum(ys) / len(ys)
+        self.xmean = sum(xs) / len(xs)
+        self.ymean = sum(ys) / len(ys)
         for (x, y), dirs in cocoon_tiles.items():
             tile_name, tile_rotation = COCCOON_TILES.get(
                 frozenset(dirs), ('solid', 0)
@@ -101,8 +105,8 @@ class Cocoon:
             sprite._caterpillar_orig_x = sprite.x
             sprite._caterpillar_orig_y = sprite.y
             for i in range(20):
-                sx = random.gauss(x-xmean, 1) * 300
-                sy = random.gauss(y-ymean, 1) * 300
+                sx = random.gauss(x-self.xmean, 1) * 300
+                sy = random.gauss(y-self.ymean, 1) * 300
                 sprite._caterpillar_speed_x = sx
                 sprite._caterpillar_speed_y = sy
                 if sx + sy > 300:
@@ -120,6 +124,11 @@ class Cocoon:
 
         self.green_t, self.white_t, self.end_t = self.add_lines()
         random.shuffle(self.pending_scores)
+        self.update_t()
+
+    def update_t(self):
+        self.butterfly_t = math.ceil((self.end_t + 1/2) / 2) * 2 + 1
+        self.bflexit_t = self.butterfly_t + 1
 
     def add_lines(self):
         edges = list(self.edge_tiles)
@@ -187,6 +196,8 @@ class Cocoon:
         for line in self.lines:
             line.update_sprite(self.t)
         self.line_batch.draw()
+        if self.butterfly_sprite.scale:
+            self.butterfly_sprite.draw()
 
     def update_sprites(self):
         t = self.t
@@ -203,6 +214,7 @@ class Cocoon:
                 self.white_t += 1
                 self.end_t += 1
                 self.green_t += 1
+                self.update_t()
                 return
             t -= self.green_t
             t /= (self.white_t - self.green_t)
@@ -219,6 +231,7 @@ class Cocoon:
         self.grid.caterpillar_opacity = 0
         for sprite in self.sprites:
             sprite.color = sprite_color
+        self.anim_butterfly(t)
         if t < self.end_t:
             t -= self.white_t
             t /= (self.end_t - self.white_t)
@@ -235,6 +248,36 @@ class Cocoon:
         self.t += dt
         if self.pending_scores and (self.t // .1) != ((self.t + dt) // .1):
             self.grid.score(*self.pending_scores.pop())
+
+    def anim_butterfly(self, t):
+        t -= self.white_t
+        self.butterfly_sprite.wing_t = t
+        if t < 2:
+            t /= 2
+            self.butterfly_sprite.scale = t
+            self.butterfly_sprite.x = lerp(self.xmean, self.grid.width/2-1/2, t) * TILE_WIDTH
+            self.butterfly_sprite.y = lerp(self.ymean, self.grid.height/2+1, t) * TILE_WIDTH
+            return
+        self.butterfly_sprite.x = (self.grid.width/2-1/2) * TILE_WIDTH
+        self.butterfly_sprite.y = (self.grid.height/2+1) * TILE_WIDTH
+        self.butterfly_sprite.scale = 1
+        t -= 4
+        if t < 0:
+            return
+        if t < 2:
+            t /= 2
+            self.butterfly_sprite.scale = lerp(1, 1/20, t)
+            self.butterfly_sprite.x = lerp(self.grid.width/2-1/2, 3.2, t) * TILE_WIDTH
+            self.butterfly_sprite.y = lerp(self.grid.height/2+1, 16, t) * TILE_WIDTH
+            return
+        t -= 4
+        self.butterfly_sprite.scale = 1/20
+        self.butterfly_sprite.x = 3.2 * TILE_WIDTH
+        self.butterfly_sprite.y = 16 * TILE_WIDTH
+        if t < 0:
+            return
+        self.butterfly_sprite.wing_t = 0
+        self.grid.signal_done()
 
 class CocoonLine:
     def __init__(self, cocoon, start, end, start_t, duration, batch, length):

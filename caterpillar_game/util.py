@@ -52,4 +52,4 @@ def decode_hue(char):
     return result
 
 def random_hue():
-    return chr(random.randrange(32, 127))
+    return chr(random.randrange(33, 127))

@@ -88,11 +88,12 @@ class Segment:
 
 
 class Caterpillar:
-    def __init__(self, grid, direction=(+1, 0)):
+    def __init__(self, grid, egg, direction=(+1, 0)):
         self.cocooning = False
         self.cocooned = False
         self.grid = grid
         self.direction = direction
+        self.egg = egg
         dx, dy = direction
         self.segments = collections.deque()
         self.segments.append(Segment.make_initial(
@@ -181,3 +182,6 @@ class Caterpillar:
             self.segments[0].is_fresh_end = True
         else:
             self.segments.popleft()
+
+    def make_butterfly(self):
+        return self.egg.make_butterfly(self.collected_hues)

@@ -101,7 +101,7 @@ class Butterfly:
 
 
 class ButterflySprite:
-    def __init__(self, butterfly, x=0, y=0, scale=1):
+    def __init__(self, butterfly, x=0, y=0, scale=1, wing_t=0):
         self.wing_batch = pyglet.graphics.Batch()
         self.body_batch = pyglet.graphics.Batch()
         self.sprites = []
@@ -119,6 +119,7 @@ class ButterflySprite:
         self.scale = scale
         self.x = x
         self.y = y
+        self.wing_t = wing_t
         self.wing_gen = start_wing_generation(butterfly.hues)
         self.alive_since = None
 
@@ -132,7 +133,9 @@ class ButterflySprite:
             return 0
         return time.time() - self.alive_since
 
-    def draw(self, t=1, partial=False):
+    def draw(self, t=None, partial=False):
+        if t is None:
+            t = self.wing_t
         t = t % 2
         if t > 1:
             t = 2 - t
@@ -147,9 +150,9 @@ class ButterflySprite:
                 )
                 self.sprites.append(self.wing_sprite)
                 self.alive_since = time.time()
-        age = self.age
-        if self.age < 1:
-            t = min(self.age, t)
+        #age = self.age
+        #if self.age < 1:
+        #    t = min(1-self.age, t)
         wing_scale = 1 - abs(math.sin(t*math.tau/4))**3 * 0.99
         x_wing = BUTTERFLY_ANCHORS['x-wing'] * BUTTERFLY_HEIGHT
         pyglet.gl.glPushMatrix()

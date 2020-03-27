@@ -13,12 +13,12 @@ SPEED = 2
 
 
 class Grid:
-    def __init__(self, state):
+    def __init__(self, state, egg=None):
         self.state = state
         self.width = 31
         self.height = 17
         self.tiles = {}
-        self.caterpillar = Caterpillar(self)
+        self.caterpillar = Caterpillar(self, egg or state.choose_egg())
         self.caterpillar_opacity = 255
         self.sprites = {}
         self.eol_tiles = []
@@ -29,6 +29,7 @@ class Grid:
         self.total_score = 0
         self.score_labels = []
         self.cocoon = None
+        self.done = False
         self.background = pyglet.image.TileableTexture. create_for_image(
             get_image('tile', 0, 0, 2, 2)
         )
@@ -51,17 +52,6 @@ class Grid:
         self[head_x + 0, head_y - 1] = 'grass'
         self[head_x + 0, head_y + 1] = 'grass'
 
-        for i, d in enumerate((
-            #DOWN,
-            #DOWN, DOWN, LEFT, LEFT, UP, UP, LEFT, LEFT, LEFT, LEFT, DOWN, DOWN,
-            #RIGHT, RIGHT, DOWN, DOWN, LEFT, LEFT, DOWN, DOWN, DOWN, DOWN,
-            #RIGHT, RIGHT, UP, UP, RIGHT, RIGHT, DOWN, DOWN, RIGHT, RIGHT, RIGHT, RIGHT,
-            #UP, UP, LEFT, LEFT, UP, UP, RIGHT, RIGHT, UP, UP, UP, #LEFT
-            #UP, UP, UP, *[LEFT]*10, *[DOWN]*1, *[RIGHT]*7, DOWN
-        )):
-            self.caterpillar.turn(d)
-            self.caterpillar.step(force_eat=i>2)
-
         self.main_score_label = pyglet.text.Label(
             f'',
             **HALF_FONT_INFO.label_args(),
@@ -73,6 +63,19 @@ class Grid:
             y=(self.height - .5) * TILE_WIDTH + HALF_FONT_INFO.baseline,
         )
         self.t = 1
+
+        for i, d in enumerate((
+            #RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT,
+            #RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT,
+            #DOWN, LEFT, UP,
+            #DOWN, DOWN, LEFT, LEFT, UP, UP, LEFT, LEFT, LEFT, LEFT, DOWN, DOWN,
+            #RIGHT, RIGHT, DOWN, DOWN, LEFT, LEFT, DOWN, DOWN, DOWN, DOWN,
+            #RIGHT, RIGHT, UP, UP, RIGHT, RIGHT, #DOWN, DOWN, RIGHT, RIGHT, RIGHT, RIGHT,
+            #UP, UP, LEFT, LEFT, UP, UP, RIGHT, RIGHT, UP, UP, UP, #LEFT
+            #UP, UP, UP, *[LEFT]*10, *[DOWN]*1, *[RIGHT]*7, DOWN
+        )):
+            self.caterpillar.turn(d)
+            self.caterpillar.step(force_eat=i>2)
 
     def add_a_flower(self, grass_only=False):
         if grass_only == False:
@@ -208,3 +211,8 @@ class Grid:
                 label._caterpillar_color = 250, 255, 200
             else:
                 label._caterpillar_color = 255, 230, 200
+
+    def signal_done(self):
+        if self.done:
+            return True
+        self.shot = pyglet.image.get_buffer_manager().get_color_buffer().get_texture()

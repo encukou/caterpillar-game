@@ -8,8 +8,8 @@ from .state import GameState
 state = GameState.load()
 print(state.to_dict())
 
-#window = Window(Grid(state))
-window = Window(Demo())
+window = Window(Grid(state))
+#window = Window(Demo())
 
 if 'ENTR_ON' in os.environ:
     # for rapid prototyping (entr), put window somewhat out of the way
