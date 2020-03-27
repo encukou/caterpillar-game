@@ -5,8 +5,8 @@ import time
 import pyglet
 
 from .resources import get_butterfly_image, get_image
-from .resources import BUTTERFLY_ANCHORS, WING_COUNT, BUTTERFLY_HEIGHT
-from .wing import start_wing_generation, get_wing_image
+from .resources import BUTTERFLY_ANCHORS, BUTTERFLY_HEIGHT
+from .wing import start_wing_generation, get_wing_image, WING_PIECE_COUNT
 
 BODY_COLOR = (61, 43, 6)
 
@@ -16,7 +16,7 @@ class Demo:
             Butterfly(
                 [
                     random.uniform(0, 1)
-                    for i in range(WING_COUNT)
+                    for i in range(WING_PIECE_COUNT)
                 ],
                 x=512, y=356,
             )
@@ -32,7 +32,7 @@ class Demo:
             butterfly = Butterfly(
                 [
                     random.uniform(0, 1)
-                    for i in range(WING_COUNT)
+                    for i in range(WING_PIECE_COUNT)
                 ],
                 scale=0.1,
                 x=x*102+51, y=y*57+35,

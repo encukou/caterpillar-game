@@ -31,6 +31,8 @@ wing_where = wing_alpha > 0
 
 wing_size = wing_matrix.shape[0]
 
+WING_PIECE_COUNT = wing_matrix.shape[2]
+
 # Using threads for CPU-bound task (numpy number crunching);
 # use a relatively small number of threads
 try:
@@ -46,11 +48,11 @@ pool = concurrent.futures.ThreadPoolExecutor(max_workers=thread_count)
 def _get_array(hues):
     time.sleep(0)
     hues = list(hues)
-    while len(hues) < resources.WING_COUNT:
+    while len(hues) < WING_PIECE_COUNT:
         hues.append(0)
     colors = numpy.array([
         tuple(int(c * 255) for c in colorsys.hsv_to_rgb(hue, 0.9, 1)) + (255,)
-        for i, hue in zip(range(resources.WING_COUNT), hues)
+        for i, hue in zip(range(WING_PIECE_COUNT), hues)
     ], dtype='uint16')
     size = wing_matrix.shape[0]
     colored = numpy.multiply(wing_matrix, colors, dtype='uint16')

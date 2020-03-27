@@ -50,8 +50,6 @@ BUTTERFLY_ANCHORS = {
     'x-wing': 4/128,
 }
 
-WING_COUNT = int(importlib.resources.read_text(__name__, 'wingcount.txt'))
-
 spritesheet_image = None
 butterfly_images = {}
 
