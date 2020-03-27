@@ -29,8 +29,6 @@ class Window(pyglet.window.Window):
             import traceback
             traceback.print_exc()
             raise
-        pyglet.text.Label('#1  ×2  4/5  100%  +300  25-03-2020', font_name='Aldrich', font_size=29, y=2*8+2, x=6*8).draw()
-        pyglet.text.Label('30  -5', font_name='Aldrich', font_size=29/2, y=0*8+2, x=6*8).draw()
 
     def tick(self, dt):
         self.scene.tick(dt)

@@ -34,6 +34,7 @@ class Cocoon:
         self.batch = pyglet.graphics.Batch()
         self.line_batch = pyglet.graphics.Batch()
         self.sprites = []
+        self.pending_scores = []
 
         self.sprite_color = 0, 100, 0
         self.web_opacity = 255
@@ -57,6 +58,8 @@ class Cocoon:
                     cocooning = True
             if ys:
                 break
+
+        self.green_t, self.white_t, self.end_t = 1, 2, 2.2
 
         if not ys:
             print('OOPS!')
@@ -106,7 +109,17 @@ class Cocoon:
                     break
             self.sprites.append(sprite)
 
+            score = 6
+            if (x, y) in self.edge_tiles:
+                score += 10
+            self.pending_scores.append((score, x, y))
+
+        for segment in caterpillar.segments:
+            if segment.xy not in cocoon_tiles:
+                self.pending_scores.append((-10, segment.x, segment.y))
+
         self.green_t, self.white_t, self.end_t = self.add_lines()
+        random.shuffle(self.pending_scores)
 
     def add_lines(self):
         edges = list(self.edge_tiles)
@@ -124,6 +137,7 @@ class Cocoon:
                 sq_distance = abs(sx - cx) ** 2 + abs(sy - cy) ** 2
                 if (
                     (best_coords is None or sq_distance > best_sq_distance)
+                    and sq_distance
                     and start != candidate_coords
                     and (start, candidate_coords) not in covered
                     and self.bresenham_check(start, candidate_coords)
@@ -132,7 +146,9 @@ class Cocoon:
                     best_coords = candidate_coords
             if best_coords is not None:
                 distance = math.sqrt(best_sq_distance)
-                duration = math.sqrt(distance)
+                duration = math.log(distance) / math.log(1.4)
+                if duration < 0.01:
+                    duration = 0.01
                 bx, by = best_coords
                 fx, fy = fuzz
                 new_fuzz = random.uniform(-.5, .5), random.uniform(-.5, .5)
@@ -212,6 +228,8 @@ class Cocoon:
 
     def tick(self, dt):
         self.t += dt
+        if self.pending_scores and (self.t // .1) != ((self.t + dt) // .1):
+            self.grid.score(*self.pending_scores.pop())
 
 class CocoonLine:
     def __init__(self, cocoon, start, end, start_t, duration, batch, length):

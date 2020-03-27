@@ -23,6 +23,7 @@ class Grid:
         self.eol_tiles = []
         self.batch = pyglet.graphics.Batch()
         self.score_batch = pyglet.graphics.Batch()
+        self.displayed_score = 0
         self.t = 0
         self.total_score = 0
         self.score_labels = []
@@ -125,6 +126,26 @@ class Grid:
                 else:
                     label.delete()
             self.score_labels = new_score_labels
+        if self.displayed_score != self.total_score:
+            diff = (self.total_score - self.displayed_score)
+            if diff < 1:
+                self.displayed_score = self.total_score
+            else:
+                self.displayed_score += (self.total_score - self.displayed_score) * 0.1
+                if diff > 1000:
+                    self.displayed_score += 111
+                if diff > 100:
+                    self.displayed_score += 11
+                elif diff > 10:
+                    self.displayed_score += 1
+                elif diff > 0:
+                    self.displayed_score += 0.5
+                else:
+                    self.displayed_score -= 0.5
+            if self.displayed_score:
+                self.main_score_label.text = str(int(self.displayed_score))
+            else:
+                self.main_score_label.text = ''
 
     def handle_command(self, command):
         if command == 'up':
