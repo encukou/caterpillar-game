@@ -62,6 +62,19 @@ _font_file.write(importlib.resources.read_binary(__name__, 'Aldrich-Regular.ttf'
 pyglet.font.add_file(_font_file.name)
 FONT = pyglet.font.load('Aldrich')
 
+class FONT_INFO:
+    font_name = 'Aldrich'
+    font_size = 29
+    baseline = 2
+
+    @classmethod
+    def label_args(cls):
+        return {'font_name': cls.font_name, 'font_size': cls.font_size}
+
+class HALF_FONT_INFO(FONT_INFO):
+    font_size = 29/2
+    baseline = 1
+
 def get_spritesheet_image():
     global spritesheet_image
     if spritesheet_image is None:

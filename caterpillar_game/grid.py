@@ -3,7 +3,7 @@ import random
 
 import pyglet
 
-from .resources import get_image, TILE_WIDTH
+from .resources import get_image, TILE_WIDTH, HALF_FONT_INFO
 from .util import pushed_matrix, UP, DOWN, LEFT, RIGHT
 from .caterpillar import Caterpillar
 from .coccoon import Cocoon
@@ -22,7 +22,10 @@ class Grid:
         self.sprites = {}
         self.eol_tiles = []
         self.batch = pyglet.graphics.Batch()
+        self.score_batch = pyglet.graphics.Batch()
         self.t = 0
+        self.total_score = 0
+        self.score_labels = []
         self.cocoon = None
         self.background = pyglet.image.TileableTexture. create_for_image(
             get_image('tile', 0, 0, 2, 2)
@@ -36,10 +39,13 @@ class Grid:
         for x, y in (0, 2), (11, 5), (17, 5):
             self[x, y] = 'flower'
 
-        for i in range(3, 5):
-            self[self.caterpillar.segments[-1].x+i, self.caterpillar.segments[-1].y] = 'flower'
-        for i in range(5):
-            self.add_a_flower()
+        head_x, head_y = self.caterpillar.segments[-1].xy
+        self[head_x, head_y] = None
+        self[head_x + 1, head_y] = None
+        self[head_x + 2, head_y] = 'grass'
+        self[head_x + 3, head_y] = 'flower'
+        self[head_x + 4, head_y] = None
+
         for i, d in enumerate((
             #DOWN,
             #DOWN, DOWN, LEFT, LEFT, UP, UP, LEFT, LEFT, LEFT, LEFT, DOWN, DOWN,
@@ -50,6 +56,17 @@ class Grid:
         )):
             self.caterpillar.turn(d)
             self.caterpillar.step(force_eat=i>2)
+
+        self.main_score_label = pyglet.text.Label(
+            f'',
+            **HALF_FONT_INFO.label_args(),
+            anchor_x='right',
+            anchor_y='baseline',
+            align='center',
+            batch=self.score_batch,
+            x=(self.width - .5) * TILE_WIDTH,
+            y=(self.height - .5) * TILE_WIDTH + HALF_FONT_INFO.baseline,
+        )
 
     def add_a_flower(self, grass_only=False):
         if grass_only == False:
@@ -86,6 +103,7 @@ class Grid:
             self.caterpillar.draw()
             if self.cocoon:
                 self.cocoon.draw()
+            self.score_batch.draw()
 
     def tick(self, dt):
         self.t += dt
@@ -95,6 +113,18 @@ class Grid:
         self.eol_tiles = [tile for tile in self.eol_tiles if tile.tick(dt)]
         for tile in self.tiles.values():
             tile.tick(dt)
+        if self.score_labels:
+            new_score_labels = []
+            for label in self.score_labels:
+                t = self.t - label._caterpillar_start_t
+                label.x = (label._caterpillar_x) * TILE_WIDTH
+                label.y = (label._caterpillar_y + t + t**2*2) * TILE_WIDTH
+                label.color = (*label._caterpillar_color, int(abs(1 - t)**.5 * 255))
+                if t < 1:
+                    new_score_labels.append(label)
+                else:
+                    label.delete()
+            self.score_labels = new_score_labels
 
     def handle_command(self, command):
         if command == 'up':
@@ -125,3 +155,30 @@ class Grid:
 
     def add_cocoon(self, caterpillar):
         self.cocoon = Cocoon(self, caterpillar)
+
+    def score(self, amount, x, y):
+        self.total_score += amount
+        if self.total_score <= 0:
+            self.total_score = 0
+            self.main_score_label.text = ''
+        else:
+            self.main_score_label.text = str(self.total_score)
+        if not (0 < amount < 5):
+            label = pyglet.text.Label(
+                f'{amount:+1}',
+                **HALF_FONT_INFO.label_args(),
+                anchor_x='center',
+                anchor_y='baseline',
+                align='center',
+                batch=self.score_batch,
+                x=x * TILE_WIDTH,
+                y=y * TILE_WIDTH,
+            )
+            self.score_labels.append(label)
+            label._caterpillar_start_t = self.t
+            label._caterpillar_x = x
+            label._caterpillar_y = y
+            if amount > 0:
+                label._caterpillar_color = 250, 255, 200
+            else:
+                label._caterpillar_color = 255, 230, 200

@@ -74,10 +74,11 @@ class Grass(Tile):
 
     def enter(self, caterpillar):
         if self.flower:
-            return self.flower.enter(caterpillar)
+            return self.flower.enter(caterpillar, from_grass=True)
         self.grid[self.x, self.y] = None
         if random.randrange(3) == 0:
             self.grid.add_a_flower(grass_only=True)
+        self.grid.score(1, self.x, self.y)
         return True
 
     def delete(self):
@@ -129,12 +130,16 @@ class Flower(Tile):
         )
         self.center_sprite.color = get_color(self.hue, 0.2)
 
-    def enter(self, caterpillar):
+    def enter(self, caterpillar, from_grass=False):
         self.grid[self.x, self.y] = None
         caterpillar.collected_hues.append(self.hue)
         self.grid.add_a_flower()
         if random.randrange(3) == 0:
             self.grid.add_a_flower(grass_only=True)
+        if from_grass:
+            self.grid.score(10, self.x, self.y)
+        else:
+            self.grid.score(9, self.x, self.y)
         return True
 
     def delete(self):
