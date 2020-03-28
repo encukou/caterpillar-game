@@ -211,9 +211,9 @@ class Cocoon:
             sprite.opacity = 255
         if t < self.white_t:
             if self.pending_scores:
-                self.white_t += 1
-                self.end_t += 1
-                self.green_t += 1
+                self.white_t += t
+                self.end_t += t
+                self.green_t += t
                 self.update_t()
                 return
             t -= self.green_t

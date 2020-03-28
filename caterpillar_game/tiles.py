@@ -11,6 +11,7 @@ class Tile:
     grid: object
     x: int
     y: int
+    props: dict = dataclasses.field(default_factory=dict)
 
     def __post_init__(self):
         self.active = True
@@ -31,7 +32,9 @@ class Tile:
     def enter(self, caterpillar):
         return False
 
-    def make_sprite(self, image, **kwargs):
+    def make_sprite(self, image=None, **kwargs):
+        if image == None:
+            image = get_image(self.props['sprite'])
         kwargs.setdefault('x', self.x * TILE_WIDTH)
         kwargs.setdefault('y', self.y * TILE_WIDTH)
         kwargs.setdefault('batch', self.grid.batch)
@@ -66,6 +69,7 @@ def register(name):
     return _decorator
 
 @register('grass')
+@register('_')
 class Grass(Tile):
     def prepare(self):
         self.sprite = self.make_sprite(get_image('grass'), group=groups[0])
@@ -171,3 +175,85 @@ class Flower(Tile):
             y = (self.y + lerp(-3/8, 1/8, t)) * TILE_WIDTH
             self.petals_sprite.y = y
             self.center_sprite.y = y
+
+@register('≈')
+class Water(Tile):
+    def prepare(self):
+        self.sprite = self.make_sprite()
+
+    def is_edge(self, caterpillar):
+        return True
+
+@register('#')
+class Abyss(Tile):
+    def prepare(self):
+        self.sprite = self.make_sprite()
+
+    def is_edge(self, caterpillar):
+        return True
+
+@register('%')
+class Boulder(Tile):
+    def prepare(self):
+        self.sprite = self.make_sprite()
+
+    def is_edge(self, caterpillar):
+        return True
+
+@register('s')
+@register('t')
+@register('w')
+class Mushroom(Tile):
+    def prepare(self):
+        self.sprite = self.make_sprite()
+
+    def is_edge(self, caterpillar):
+        return True
+
+@register('S')
+@register('T')
+@register('W')
+class Diamond(Tile):
+    def prepare(self):
+        self.sprite = self.make_sprite()
+
+    def is_edge(self, caterpillar):
+        return True
+
+@register('$')
+class Apple(Tile):
+    def prepare(self):
+        self.sprite = self.make_sprite()
+
+    def is_edge(self, caterpillar):
+        return True
+
+@register('*')
+class Star(Tile):
+    def prepare(self):
+        self.sprite = self.make_sprite()
+
+    def is_edge(self, caterpillar):
+        return True
+
+@register('>')
+@register('<')
+@register('^')
+@register('v')
+class ArrowPad(Tile):
+    def prepare(self):
+        self.sprite = self.make_sprite()
+
+    def is_edge(self, caterpillar):
+        return True
+
+@register('→')
+@register('←')
+@register('↑')
+@register('↓')
+class Launcher(Tile):
+    def prepare(self):
+        self.sprite = self.make_sprite()
+
+    def is_edge(self, caterpillar):
+        return True

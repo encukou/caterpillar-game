@@ -1,4 +1,5 @@
 import os
+import sys
 
 from .window import Window
 from .grid import Grid
@@ -8,7 +9,12 @@ from .state import GameState
 state = GameState.load()
 print(state.to_dict())
 
-window = Window(Grid(state))
+try:
+    level = int(sys.argv[1])
+except (IndexError, ValueError):
+    level = 5
+
+window = Window(Grid(state, level=level))
 #window = Window(Demo())
 
 if 'ENTR_ON' in os.environ:

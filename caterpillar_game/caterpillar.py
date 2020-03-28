@@ -88,7 +88,7 @@ class Segment:
 
 
 class Caterpillar:
-    def __init__(self, grid, egg, direction=(+1, 0)):
+    def __init__(self, grid, egg, direction=(+1, 0), x=None, y=None):
         self.cocooning = False
         self.cocooned = False
         self.grid = grid
@@ -96,8 +96,11 @@ class Caterpillar:
         self.egg = egg
         dx, dy = direction
         self.segments = collections.deque()
+        print('!!', x, y, self.direction)
         self.segments.append(Segment.make_initial(
-            grid.width // 2 - dx, grid.height // 2 - dy, self.direction,
+            (grid.width // 2 if x is None else x) + dx,
+            (grid.height // 2 if y is None else y) + dy,
+            self.direction,
         ))
         self.body_image = get_image('body')
         self.head_image = get_image('head')

@@ -7,18 +7,20 @@ from .resources import get_image, TILE_WIDTH, HALF_FONT_INFO
 from .util import pushed_matrix, UP, DOWN, LEFT, RIGHT
 from .caterpillar import Caterpillar
 from .coccoon import Cocoon
+from .level import load_level_to_grid
 from . import tiles
 
 SPEED = 2
 
 
 class Grid:
-    def __init__(self, state, egg=None):
+    def __init__(self, state, egg=None, level=0):
         self.state = state
+        self.egg = egg
         self.width = 31
         self.height = 17
         self.tiles = {}
-        self.caterpillar = Caterpillar(self, egg or state.choose_egg())
+        self.caterpillar = None
         self.caterpillar_opacity = 255
         self.sprites = {}
         self.eol_tiles = []
@@ -33,7 +35,37 @@ class Grid:
         self.background = pyglet.image.TileableTexture. create_for_image(
             get_image('tile', 0, 0, 2, 2)
         )
+        self.level = level
+        self.autogrow_flowers = True
+        if level == 0:
+            self.add_caterpillar()
+            self.init_level0()
+        else:
+            load_level_to_grid(level, self)
 
+        self.main_score_label = pyglet.text.Label(
+            f'',
+            **HALF_FONT_INFO.label_args(),
+            anchor_x='right',
+            anchor_y='baseline',
+            align='center',
+            batch=self.score_batch,
+            x=(self.width - .5) * TILE_WIDTH,
+            y=(self.height - .5) * TILE_WIDTH + HALF_FONT_INFO.baseline,
+        )
+
+        self.t = 1
+        if self.caterpillar is None:
+            print('nc')
+            self.add_caterpillar()
+
+    def add_caterpillar(self, x=None, y=None, direction=(1, 0)):
+        self.caterpillar = Caterpillar(
+            self, self.egg or self.state.choose_egg(),
+            x=x, y=y, direction=direction,
+        )
+
+    def init_level0(self):
         for x in range(self.width):
             for y in range(self.height):
                 if random.randrange(7) < 2:
@@ -52,18 +84,6 @@ class Grid:
         self[head_x + 0, head_y - 1] = 'grass'
         self[head_x + 0, head_y + 1] = 'grass'
 
-        self.main_score_label = pyglet.text.Label(
-            f'',
-            **HALF_FONT_INFO.label_args(),
-            anchor_x='right',
-            anchor_y='baseline',
-            align='center',
-            batch=self.score_batch,
-            x=(self.width - .5) * TILE_WIDTH,
-            y=(self.height - .5) * TILE_WIDTH + HALF_FONT_INFO.baseline,
-        )
-        self.t = 1
-
         for i, d in enumerate((
             #RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT,
             #RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT,
@@ -78,6 +98,8 @@ class Grid:
             self.caterpillar.step(force_eat=i>2)
 
     def add_a_flower(self, grass_only=False):
+        if not self.autogrow_flowers:
+            return False
         if grass_only == False:
             if self.add_a_flower(grass_only=True):
                 return True
@@ -180,7 +202,9 @@ class Grid:
         if x < 0 or y < 0 or x >= self.width or y >= self.height:
             return
         if item is not None:
-            self.tiles[x_y] = tiles.new(item, self, x, y)
+            if isinstance(item, str):
+                item = tiles.new(item, self, x, y)
+            self.tiles[x_y] = item
 
     def add_cocoon(self, caterpillar):
         self.cocoon = Cocoon(self, caterpillar)

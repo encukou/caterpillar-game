@@ -1,6 +1,7 @@
 import importlib.resources
 import functools
 import tempfile
+import json
 
 import pyglet
 
@@ -17,11 +18,22 @@ SPRITES = {
     'coccoon_3': (5, 0),
     'coccoon_4': (6, 0),
     'solid': (7, 0),
+    'diamond-s': (9, 0),
+    'apple': (10, 0),
+    'diamond-w': (11, 0),
+    'diamond-t': (12, 0),
 
     'flower-stem': (0, 1),
     'grass': (1, 1),
     'flower-petals': (3, 1),
     'flower-center': (4, 1),
+    'boulder': (5, 1),
+    'mushroom-s': (9, 1),
+    'star': (10, 1),
+    'mushroom-w': (11, 1),
+    'mushroom-t': (12, 1),
+    'key': (13, 1),
+    'diamond': (14, 1),
 
     'egg': (0, 2),
     'egg-space': (1, 2),
@@ -61,6 +73,9 @@ _font_file = tempfile.NamedTemporaryFile(suffix='Aldrich-Regular.ttf')
 _font_file.write(importlib.resources.read_binary(__name__, 'Aldrich-Regular.ttf'))
 pyglet.font.add_file(_font_file.name)
 FONT = pyglet.font.load('Aldrich')
+
+with importlib.resources.open_text(__name__, 'maps.json') as f:
+    LEVELS = json.load(f)
 
 class FONT_INFO:
     font_name = 'Aldrich'
