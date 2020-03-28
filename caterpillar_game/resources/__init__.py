@@ -49,7 +49,8 @@ SPRITES = {
     'go-on': (11, 2),
     'go-off': (12, 2),
     'go-enter': (13, 2),
-    'spinner': (15, 2),
+    'spinner': (14, 2),
+    'crushed': (15, 2),
 
     'tile': (0, 4),
 }

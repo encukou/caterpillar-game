@@ -437,9 +437,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2"
-     inkscape:cx="737.13105"
-     inkscape:cy="484.5274"
+     inkscape:zoom="22.627417"
+     inkscape:cx="990.91562"
+     inkscape:cy="429.76655"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -1937,6 +1937,43 @@
        id="path62966"
        d="m 242.35833,124.88333 h 6.35 l -3.175,-4.23333 z"
        style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#d8d8d8;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1" />
+    <circle
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke"
+       id="circle62970"
+       cx="25.4"
+       cy="143.93333"
+       r="6.3499999" />
+    <circle
+       r="1.0583333"
+       cy="140.75833"
+       cx="22.225"
+       id="circle62972"
+       style="fill:#000000;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
+    <circle
+       r="1.0583333"
+       cy="140.75833"
+       cx="28.574999"
+       id="circle62974"
+       style="fill:#000000;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
+    <ellipse
+       ry="5.8208303"
+       rx="6.3499999"
+       cy="110.59583"
+       cx="262.46667"
+       id="circle62976"
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.633298;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
+    <path
+       sodipodi:nodetypes="cccc"
+       inkscape:connector-curvature="0"
+       d="m 260.08542,109.00833 -1.5875,-1.5875 m 0,1.5875 1.5875,-1.5875"
+       style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.79375;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+       id="path62984" />
+    <path
+       id="path62987"
+       style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.79375;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+       d="m 266.43542,109.00833 -1.5875,-1.5875 m 0,1.5875 1.5875,-1.5875"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
   </g>
   <script
      id="mesh_polyfill"

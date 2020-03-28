@@ -197,8 +197,18 @@ class Boulder(Tile):
     def prepare(self):
         self.sprite = self.make_sprite()
 
-    def is_edge(self, caterpillar):
-        return True
+    def enter(self, caterpillar):
+        caterpillar.die('crash', '''
+            Can't eat that!
+            You ran into a boulder.
+            Squished by a boulder.
+            This is too heavy!
+            A impassable boulder blocks the way.
+            How many caterpillars have gravestones?
+            Tough luck.
+            No new butterfly today.
+            Ouch!
+        ''')
 
 @register('s')
 @register('t')
@@ -217,8 +227,14 @@ class Diamond(Tile):
     def prepare(self):
         self.sprite = self.make_sprite()
 
-    def is_edge(self, caterpillar):
-        return True
+    def enter(self, caterpillar):
+        caterpillar.die('crash', '''
+            Can't eat that!
+            You ran into a diamond.
+            This is too hard!
+            Gemstone turned gravestone.
+            No new butterfly today.
+        ''')
 
 @register('$')
 class Apple(Tile):
@@ -233,8 +249,13 @@ class Star(Tile):
     def prepare(self):
         self.sprite = self.make_sprite()
 
-    def is_edge(self, caterpillar):
-        return True
+    def enter(self, caterpillar):
+        caterpillar.die('crash', '''
+            You met with a starry fate.
+            This is too pointy!
+            Should have gone around it.
+            This is solider than it looked!
+        ''')
 
 @register('>')
 @register('<')

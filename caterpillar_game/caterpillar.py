@@ -63,7 +63,11 @@ class Segment:
         while self.from_angle - 180 > to_angle:
             self.from_angle -= 360
 
-    def update_sprite(self, sprite, t, is_head, i, ct):
+    def update_sprite(self, sprite, t, is_head, i, fate, ct):
+        if fate == 'crash' and is_head:
+            t *= 0.5
+            if ct and ct > 0.5:
+                sprite.image = get_image('crushed')
         if self.is_fresh_end:
             sprite.x = self.x * TILE_WIDTH
             sprite.y = self.y * TILE_WIDTH
@@ -80,23 +84,23 @@ class Segment:
             self.from_angle, DIR_ANGLES[self.direction], t
         ) + math.sin(t * math.tau * 2) * wiggle
         if ct:
-            if ct > 1:
-                ct = 1
-            if not is_head:
-                sprite.rotation += ct * 90
-            sprite.color = 0, lerp(255, 100, ct), 0
+            if fate == 'cocooning':
+                if ct > 1:
+                    ct = 1
+                if not is_head:
+                    sprite.rotation += ct * 90
+                sprite.color = 0, lerp(255, 100, ct), 0
 
 
 class Caterpillar:
     def __init__(self, grid, egg, direction=(+1, 0), x=None, y=None):
-        self.cocooning = False
         self.cocooned = False
+        self.fate = None
         self.grid = grid
         self.direction = direction
         self.egg = egg
         dx, dy = direction
         self.segments = collections.deque()
-        print('!!', x, y, self.direction)
         self.segments.append(Segment.make_initial(
             (grid.width // 2 if x is None else x) + dx,
             (grid.height // 2 if y is None else y) + dy,
@@ -134,13 +138,14 @@ class Caterpillar:
                 sprite,
                 t=t, ct=self.ct,
                 is_head=(i == len(self.segments) - 1),
+                fate=self.fate,
                 i=i,
             )
             sprite.opacity = self.grid.caterpillar_opacity
         self.batch.draw()
 
     def turn(self, direction):
-        if not self.cocooning:
+        if not self.fate:
             x, y = direction
             head = self.segments[-1]
             fx, fy = head.from_direction
@@ -149,12 +154,13 @@ class Caterpillar:
                 self.segments[-1].look(direction)
 
     def tick(self, dt):
-        if self.cocooning:
-            self.ct += dt
+        if self.fate:
+            if self.fate:
+                self.ct += dt
             self.t += dt
             if self.t > 0.5:
                 self.t = 0.5
-                if not self.cocooned:
+                if self.fate == 'cocooning' and not self.cocooned:
                     self.cocooned = True
                     self.grid.add_cocoon(self)
         else:
@@ -163,22 +169,22 @@ class Caterpillar:
                 self.step()
             self.t += dt
 
-    def step(self, force_eat=False):
+    def step(self, force_eat=False, recursing=False):
         head = self.segments[-1]
         new_head = head.grow_head(self.direction)
         head_tile = self.grid[new_head.x, new_head.y]
-        if head_tile.is_edge(self):
+        if head_tile.is_edge(self) and not recursing:
             xd, yd = self.direction
             possibilities = [(-yd, xd), (yd, -xd)]
             random.shuffle(possibilities)
             for nxd, nyd in possibilities:
                 if not self.grid[head.x + nxd, head.y + nyd].is_edge(self):
                     self.turn((nxd, nyd))
-                    return self.step(force_eat=force_eat)
+                    return self.step(force_eat=force_eat, recursing=True)
         for segment in self.segments:
             if segment.xy == new_head.xy:
                 new_head.look(segment.direction)
-                self.cocooning = True
+                self.fate = 'cocooning'
         self.segments.append(new_head)
         should_grow = head_tile.enter(self)
         if should_grow:
@@ -188,3 +194,9 @@ class Caterpillar:
 
     def make_butterfly(self):
         return self.egg.make_butterfly(self.collected_hues)
+
+    def die(self, fate, messages):
+        self.fate = fate
+        self.grid.signal_game_over(
+            random.choice(messages.strip().splitlines()).strip()
+        )

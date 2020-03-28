@@ -42,7 +42,6 @@ def load_level_to_grid(level, grid):
                     grid[x, ny] = 'grass'
                     grid[x, ny].grow_flower()
                 elif tile_str == '@':
-                    print('<', end='')
                     grid.add_caterpillar(
                         x, ny,
                         (int(props['dx']), int(props['dy']))

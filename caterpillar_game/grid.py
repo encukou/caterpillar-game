@@ -1,5 +1,6 @@
 import array
 import random
+import math
 
 import pyglet
 
@@ -28,6 +29,7 @@ class Grid:
         self.score_batch = pyglet.graphics.Batch()
         self.displayed_score = 0
         self.t = 0
+        self.gameover_t = None
         self.total_score = 0
         self.score_labels = []
         self.cocoon = None
@@ -53,10 +55,20 @@ class Grid:
             x=(self.width - .5) * TILE_WIDTH,
             y=(self.height - .5) * TILE_WIDTH + HALF_FONT_INFO.baseline,
         )
+        self.gameover_label = pyglet.text.Label(
+            f'',
+            **HALF_FONT_INFO.label_args(),
+            anchor_x='left',
+            anchor_y='baseline',
+            align='center',
+            batch=self.score_batch,
+            color=(0, 0, 0, 0),
+            x=-.5 * TILE_WIDTH,
+            y=(self.height - .5) * TILE_WIDTH + HALF_FONT_INFO.baseline,
+        )
 
         self.t = 1
         if self.caterpillar is None:
-            print('nc')
             self.add_caterpillar()
 
     def add_caterpillar(self, x=None, y=None, direction=(1, 0)):
@@ -176,6 +188,12 @@ class Grid:
                 self.main_score_label.text = str(int(self.displayed_score))
             else:
                 self.main_score_label.text = ''
+        if self.gameover_t is not None:
+            gt = (self.t - self.gameover_t)
+            self.gameover_label.color = (
+                255, 255, 255,
+                int(min(234, 234 * gt) - math.sin(gt * math.tau / 3) * 21)
+            )
 
     def handle_command(self, command):
         if command == 'up':
@@ -240,3 +258,7 @@ class Grid:
         if self.done:
             return True
         self.shot = pyglet.image.get_buffer_manager().get_color_buffer().get_texture()
+
+    def signal_game_over(self, message):
+        self.gameover_label.text = f'{message}    Press esc to exit.'.upper()
+        self.gameover_t = self.t
