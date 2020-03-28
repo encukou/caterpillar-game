@@ -255,6 +255,8 @@ class Caterpillar:
             head.look(direction)
 
     def tick(self, dt):
+        if DEBUG:
+            dt *= 4
         if self.fate:
             self.ct += dt
         if self.pause_label:
@@ -337,6 +339,8 @@ class Caterpillar:
                 self.segments[0].is_fresh_end = True
             else:
                 self.segments.popleft()
+                if len(self.segments) > 1 and not self.segments[0].visible:
+                    self.segments.popleft()
                 if self.swimming:
                     on_dry_land = False
                     for segment in self.segments:
