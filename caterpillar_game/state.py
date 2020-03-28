@@ -12,9 +12,10 @@ class GameState:
         self.broods = []
         self.in_tutorial = True
         self.butterflies = []
-        self.accessible_levels = [False] * 10
+        self.accessible_levels = [True] * 10
         self.accessible_levels[0] = self.accessible_levels[5] = True
         self.last_level = 0
+        self.level_achievements = {}
 
     def save(self, path=SAVE_PATH):
         with SAVE_PATH.open('w') as f:
@@ -40,6 +41,7 @@ class GameState:
         self.butterflies = [Butterfly.from_dict(b) for b in data['butterflies']]
         self.accessible_levels = data['accessible_levels']
         self.last_level = data['last_level']
+        self.level_achievements = data['level_achievements']
         self.adjust()
 
     @property
@@ -59,6 +61,7 @@ class GameState:
             'butterflies': [b.to_dict() for b in self.butterflies],
             'accessible_levels': self.accessible_levels,
             'last_level': self.last_level,
+            'level_achievements': self.level_achievements,
         }
 
     def count_eggs(self, max=None):

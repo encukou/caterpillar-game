@@ -59,6 +59,9 @@ class Tile:
     def is_water(self, caterpillar):
         return False
 
+    def coccoon_info(self):
+        return None, 0
+
 
 empty = Tile(None, -1, -1)
 
@@ -315,6 +318,9 @@ class Boulder(Tile):
                     sprite.opacity = (1 - t)**2 * 255
                 return True
 
+    def coccoon_info(self):
+        return 'boulder', 10
+
 @register('w')
 class BubblyMushroom(EdibleTile):
     def enter(self, caterpillar):
@@ -355,6 +361,9 @@ class Diamond(Tile):
             Tough luck.
         ''')
 
+    def coccoon_info(self):
+        return 'diamond-' + self.props['str'].lower(), 1000
+
 @register('$')
 class Apple(EdibleTile):
     def enter(self, caterpillar):
@@ -371,6 +380,9 @@ class Star(Tile):
             Should have gone around it.
             This is solider than it looked!
         ''')
+
+    def coccoon_info(self):
+        return 'star', 500
 
 @register('>')
 @register('<')
@@ -410,3 +422,6 @@ class Key(Tile):
             Should have gone around it.
             That's too heavy to eat.
         ''')
+
+    def coccoon_info(self):
+        return f'key:{self.props["opens"]}', 100

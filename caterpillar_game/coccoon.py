@@ -251,7 +251,11 @@ class Cocoon:
             self.last_score_t += dt
             while self.last_score_t > 0.05 and self.pending_scores:
                 self.last_score_t -= 0.05
-                self.grid.score(*self.pending_scores.pop())
+                amount, x, y = self.pending_scores.pop()
+                item, bonus = self.grid[x, y].coccoon_info()
+                self.grid.score(amount+bonus, x, y)
+                if item:
+                    self.caterpillar.collect(item)
 
     def anim_butterfly(self, t):
         t -= self.white_t
@@ -270,13 +274,13 @@ class Cocoon:
             return
         if t < 2:
             t /= 2
-            self.butterfly_sprite.scale = lerp(1, 1/20, t)
-            self.butterfly_sprite.x = lerp(self.grid.width/2-1/2, 3.2, t) * TILE_WIDTH
+            self.butterfly_sprite.scale = lerp(1, 0.0625, t)
+            self.butterfly_sprite.x = lerp(self.grid.width/2-1/2, 2.55, t) * TILE_WIDTH
             self.butterfly_sprite.y = lerp(self.grid.height/2+1, 16, t) * TILE_WIDTH
             return
         t -= 4
-        self.butterfly_sprite.scale = 1/20
-        self.butterfly_sprite.x = 3.2 * TILE_WIDTH
+        self.butterfly_sprite.scale = 0.0625
+        self.butterfly_sprite.x = 2.55 * TILE_WIDTH
         self.butterfly_sprite.y = 16 * TILE_WIDTH
         if t < 0:
             return

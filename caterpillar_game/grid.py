@@ -72,6 +72,7 @@ class Grid:
         self.t = 1
         if self.caterpillar is None:
             self.add_caterpillar()
+        #self.add_cocoon(self.caterpillar) ## debug
 
     def add_caterpillar(self, x=None, y=None, direction=(1, 0)):
         self.caterpillar = Caterpillar(
@@ -270,6 +271,8 @@ class Grid:
         if self.done:
             return True
         self.shot = pyglet.image.get_buffer_manager().get_color_buffer().get_texture()
+        if self.ui:
+            self.ui.activate(self.shot)
 
     def signal_game_over(self, message):
         self.gameover_label.text = f'{message}    Press esc to exit.'.upper()

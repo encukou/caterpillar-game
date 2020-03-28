@@ -18,7 +18,7 @@ LEVEL_POSITIONS = [
     *[(x, y) for y in (224, 144, 64) for x in (594, 728, 865)]
 ]
 
-groups = [pyglet.graphics.OrderedGroup(i) for i in range(4)]
+groups = [pyglet.graphics.OrderedGroup(i) for i in range(10)]
 
 def mksprite(*args, **kwargs):
     if 'yy' in kwargs:
@@ -39,8 +39,11 @@ class LevelSelect:
     def __init__(self, state, window):
         self.state = state
         self.window = window
+        self.t = 0
+        self.overlay_t = None
         self.chosen_level = self.state.last_level
         self.batch = pyglet.graphics.Batch()
+        self.selected_egg = state.choose_egg()
         self.butterfly_label = pyglet.text.Label(
             '× 1',
             **FONT_INFO.label_args(),
@@ -150,6 +153,13 @@ class LevelSelect:
                 group=groups[3],
             ),
         ]
+        self.overlay = mksprite(
+            get_image('void'),
+            batch=self.batch,
+            group=groups[9],
+            x=0,
+            y=0,
+        )
         self.elements = [
             mksprite(
                 get_image('solid', 0, 0),
@@ -242,7 +252,14 @@ class LevelSelect:
                 self.level_arrows[i].opacity = 0
 
     def tick(self, dt):
-        pass
+        self.t += dt
+        if self.overlay_t is not None:
+            overlay_t = self.t - self.overlay_t
+            if overlay_t > 1:
+                self.overlay.opacity = 0
+                self.overlay_t = None
+            else:
+                self.overlay.opacity = int(255 * (1 - overlay_t))
 
     def draw(self):
         self.batch.draw()
@@ -257,12 +274,15 @@ class LevelSelect:
         if command == 'go':
             self.window.scene = Grid(
                 state=self.state,
-                #egg=None,
+                egg=self.selected_egg,
                 level=self.chosen_level,
                 ui=self,
             )
         self.update()
 
-    def activate(self):
+    def activate(self, overlay=None):
+        if overlay:
+            self.overlay.image = overlay
+            self.overlay_t = self.t
         self.window.scene = self
         self.update()

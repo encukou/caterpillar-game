@@ -23,7 +23,18 @@ for tileset in LEVELS['tilesets']:
         for tile in tileset['tiles']
     })
 
+LEVEL_MAP = {
+    1: 3,
+    2: 5,
+    3: 6,
+    4: 7,
+    5: 8,
+    6: 9,
+    9: 1,
+}
+
 def load_level_to_grid(level, grid):
+    level = LEVEL_MAP.get(level, level)
     start_col = (level - 1) % 3 * 32
     start_row = (3 - (level - 1) // 3) * 18
 
