@@ -191,10 +191,11 @@ class Caterpillar:
         t = self.t
         for i, segment in enumerate(self.segments):
             sprite = self.sprites[-1-i]
+            is_head = (i == len(self.segments) - 1)
             segment.update_sprite(
                 sprite,
                 t=t, ct=self.ct,
-                is_head=(i == len(self.segments) - 1),
+                is_head=is_head,
                 fate=self.fate,
                 i=i,
             )
@@ -202,6 +203,10 @@ class Caterpillar:
                 sprite.opacity = self.grid.caterpillar_opacity
             else:
                 sprite.opacity = False
+            if is_head and 'mushroom-w' in self.collected_items:
+                sprite.color = 0, 255, 150
+            else:
+                sprite.color = 100, 255, 0
         self.batch.draw()
         if DEBUG:
             sprite = pyglet.sprite.Sprite(
@@ -364,8 +369,8 @@ class Caterpillar:
     def use(self, item):
         if item in self.collected_items:
             self.collected_items.remove(item)
-            return True
             self.grid.update_collected(self)
+            return True
         return False
 
     def utter(self, utterance, randomize_x=0, randomize_y=0):
