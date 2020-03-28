@@ -2,11 +2,14 @@ import dataclasses
 import collections
 import math
 import random
+import sys
 
 import pyglet
 
 from .resources import get_image, TILE_WIDTH
 from .util import lerp
+
+DEBUG = 'megahit' in sys.argv
 
 DIR_ANGLES = {
     (0, +1): 0,
@@ -200,6 +203,15 @@ class Caterpillar:
             else:
                 sprite.opacity = False
         self.batch.draw()
+        if DEBUG:
+            sprite = pyglet.sprite.Sprite(
+                get_image('solid'),
+                x=self.segments[-1].x * TILE_WIDTH,
+                y=self.segments[-1].y * TILE_WIDTH,
+            )
+            sprite.scale = len(self.segments)
+            sprite.opacity = 100
+            sprite.draw()
 
     def turn(self, direction):
         if self.fate:
@@ -323,6 +335,8 @@ class Caterpillar:
                             Finding Nemo?
                             That went swimmingly... Not.
                         """)
+        if DEBUG and not self.swimming and not self.fate:
+            self.pause('.')
 
     def make_butterfly(self):
         return self.egg.make_butterfly(self.collected_hues)

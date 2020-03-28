@@ -337,3 +337,17 @@ class ArrowPad(Tile):
 class Launcher(ArrowPad):
     def launch(self, caterpillar):
         return True
+
+@register('K')
+class Key(Tile):
+    def prepare_sprite(self):
+        self.sprite = self.make_sprite(get_image('key'))
+
+    def enter(self, caterpillar):
+        caterpillar.die('crash', '''
+            Can't eat that!
+            It's shiny, but apparently not edible.
+            Keys are not part of a balanced diet.
+            Should have gone around it.
+            That's too heavy to eat.
+        ''')
