@@ -48,6 +48,9 @@ class Tile:
     def attempt_turn(self, caterpillar, new_direction):
         return True
 
+    def launch(self, caterpillar):
+        return False
+
 empty = Tile(None, -1, -1)
 
 class Edge(Tile):
@@ -305,8 +308,5 @@ class ArrowPad(Tile):
 @register('↑')
 @register('↓')
 class Launcher(ArrowPad):
-    def prepare(self):
-        self.sprite = self.make_sprite()
-
-    def is_edge(self, caterpillar):
+    def launch(self, caterpillar):
         return True

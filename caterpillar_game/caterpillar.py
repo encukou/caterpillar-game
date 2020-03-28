@@ -15,6 +15,13 @@ DIR_ANGLES = {
     (-1, 0): -90,
 }
 
+def get_dir_angle(direction):
+    try:
+        return DIR_ANGLES[direction]
+    except KeyError:
+        x, y = direction
+        return 90-math.degrees(math.atan2(y, x))
+
 
 @dataclasses.dataclass
 class Segment:
@@ -28,7 +35,9 @@ class Segment:
     def __post_init__(self):
         self.xy = self.x, self.y
         self.is_fresh_end = False
-        self.from_angle = DIR_ANGLES[self.from_direction]
+        self.from_angle = get_dir_angle(self.from_direction)
+        self.visible = True
+        self.launched = False
         self.adjust_from_angle()
 
     @classmethod
@@ -57,13 +66,15 @@ class Segment:
         self.adjust_from_angle()
 
     def adjust_from_angle(self):
-        to_angle = DIR_ANGLES[self.direction]
+        to_angle = get_dir_angle(self.direction)
         while self.from_angle + 180 < to_angle:
             self.from_angle += 360
         while self.from_angle - 180 > to_angle:
             self.from_angle -= 360
 
     def update_sprite(self, sprite, t, is_head, i, fate, ct):
+        if not self.visible:
+            return
         if fate == 'crash' and is_head:
             t *= 0.5
             if ct and ct > 0.5:
@@ -90,7 +101,7 @@ class Segment:
         else:
             wiggle = i % 2 * 20 - 10
         sprite.rotation = lerp(
-            self.from_angle, DIR_ANGLES[self.direction], t
+            self.from_angle, get_dir_angle(self.direction), t
         ) + math.sin(t * math.tau * 2) * wiggle
         if ct:
             if fate == 'cocooning':
@@ -99,6 +110,9 @@ class Segment:
                 if not is_head:
                     sprite.rotation += ct * 90
                 sprite.color = 0, lerp(255, 100, ct), 0
+        if self.launched:
+            amount = (1 - (1-2*t)**2)
+            sprite.y += amount * TILE_WIDTH * 2 / 3
 
 
 class Caterpillar:
@@ -151,7 +165,10 @@ class Caterpillar:
                 fate=self.fate,
                 i=i,
             )
-            sprite.opacity = self.grid.caterpillar_opacity
+            if segment.visible:
+                sprite.opacity = self.grid.caterpillar_opacity
+            else:
+                sprite.opacity = False
         self.batch.draw()
 
     def turn(self, direction):
@@ -186,21 +203,34 @@ class Caterpillar:
 
     def step(self, force_eat=False, recursing=False):
         head = self.segments[-1]
-        new_head = head.grow_head(self.direction)
+        direction = self.direction
+        launched = False
+        if self.grid[head.xy].launch(self):
+            x, y = direction
+            x *= 2
+            y *= 2
+            phantom_segment = head.grow_head(direction)
+            self.segments.append(phantom_segment)
+            phantom_segment.visible = False
+            direction = x, y
+            launched = True
+        new_head = head.grow_head(direction)
+        new_head.launched = launched
         head_tile = self.grid[new_head.x, new_head.y]
         if head_tile.is_edge(self) and not recursing:
-            xd, yd = self.direction
+            xd, yd = direction
             possibilities = [(-yd, xd), (yd, -xd)]
             random.shuffle(possibilities)
             for nxd, nyd in possibilities:
                 if not self.grid[head.x + nxd, head.y + nyd].is_edge(self):
                     self.turn((nxd, nyd))
                     return self.step(force_eat=force_eat, recursing=True)
-        for segment in self.segments:
-            if segment.xy == new_head.xy:
-                new_head.look(segment.direction)
-                self.fate = 'cocooning'
-                self.moving = False
+        if not self.fate:
+            for segment in self.segments:
+                if segment.xy == new_head.xy and segment.visible:
+                    new_head.look(segment.direction)
+                    self.fate = 'cocooning'
+                    self.moving = False
         if self.fate in ('drown', 'fall'):
             if self.ct < 2:
                 self.segments.append(new_head)
@@ -214,7 +244,10 @@ class Caterpillar:
             pass
         else:
             self.segments.append(new_head)
-            should_grow = head_tile.enter(self)
+            if self.fate == 'cocooning':
+                should_grow = True
+            else:
+                should_grow = head_tile.enter(self)
             if should_grow:
                 self.segments[0].is_fresh_end = True
             else:
