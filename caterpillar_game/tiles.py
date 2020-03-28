@@ -247,9 +247,11 @@ class Boulder(Tile):
         ''')
 
 @register('w')
-class Mushroom(EdibleTile):
+class BubblyMushroom(EdibleTile):
     def enter(self, caterpillar):
         super().enter(caterpillar)
+        if caterpillar.collect('mushroom-w'):
+            caterpillar.utter('YOU FEEL LIGHTER')
 
 @register('t')
 class SoporificMushroom(EdibleTile):
@@ -281,8 +283,11 @@ class Diamond(Tile):
         ''')
 
 @register('$')
-class Apple(Tile):
-    pass
+class Apple(EdibleTile):
+    def enter(self, caterpillar):
+        super().enter(caterpillar)
+        if caterpillar.collect('apple'):
+            caterpillar.utter('YUM!')
 
 @register('*')
 class Star(Tile):

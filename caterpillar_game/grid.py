@@ -39,6 +39,7 @@ class Grid:
         )
         self.level = level
         self.autogrow_flowers = True
+        self.collected_sprites = {}
         if level == 0:
             self.add_caterpillar()
             self.init_level0()
@@ -269,3 +270,22 @@ class Grid:
     def signal_game_over(self, message):
         self.gameover_label.text = f'{message}    Press esc to exit.'.upper()
         self.gameover_t = self.t
+
+    def update_collected(self, caterpillar):
+        for item in caterpillar.collected_items.difference(self.collected_sprites):
+            print(item)
+            for i in range(100):
+                for sprite in self.collected_sprites.values():
+                    if sprite._caterpillar_i == i:
+                        break
+                else:
+                    break
+            sprite = pyglet.sprite.Sprite(
+                get_image(item),
+                x=(self.width-1/4) * TILE_WIDTH,
+                y=(self.height - 3/4 - i/2) * TILE_WIDTH,
+                batch=self.score_batch,
+            )
+            sprite._caterpillar_i = i
+            sprite.scale = 1/4
+            self.collected_sprites[item] = sprite

@@ -160,6 +160,7 @@ class Caterpillar:
         sprite.scale = TILE_WIDTH / sprite.width
         self.sprites = [sprite]
         self.collected_hues = []
+        self.collected_items = set()
 
     def draw(self):
         while len(self.sprites) < len(self.segments):
@@ -216,11 +217,7 @@ class Caterpillar:
             head = self.segments[-1]
             while self.zt > 1:
                 self.zt -= 1
-                self.grid.add_label(
-                    self.pause_label,
-                    head.x + random.gauss(0, 1/3),
-                    head.y + random.random() / 2,
-                )
+                self.utter(self.pause_label, 1, 1)
         if self.paused:
             dt *= (1 - self.t/2)
             if self.t + dt > 0.75:
@@ -310,3 +307,16 @@ class Caterpillar:
         self.sprites[0].image = get_image('asleep')
         self.paused = True
         self.pause_label = label
+
+    def collect(self, item):
+        added = item not in self.collected_items
+        self.collected_items.add(item)
+        self.grid.update_collected(self)
+        return added
+
+    def utter(self, utterance, randomize_x=0, randomize_y=0):
+        head = self.segments[-1]
+        self.grid.add_label(utterance,
+            head.x + random.gauss(0, 1/3) * randomize_x,
+            head.y + random.random() / 2 * randomize_y,
+        )
