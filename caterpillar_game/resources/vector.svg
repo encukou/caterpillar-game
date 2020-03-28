@@ -437,9 +437,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4"
-     inkscape:cx="939.48838"
-     inkscape:cy="340.25125"
+     inkscape:zoom="2"
+     inkscape:cx="305.87812"
+     inkscape:cy="425.779"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -1517,19 +1517,19 @@
        id="circle62746"
        style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
     <ellipse
-       ry="0.26457664"
-       rx="1.0583333"
-       style="fill:#000000;fill-rule:evenodd;stroke-width:0.330725;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke"
+       ry="0.39687106"
+       rx="1.1906254"
+       style="fill:#000000;fill-rule:evenodd;stroke-width:0.429628;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke"
        id="circle62748"
-       cx="56.091667"
-       cy="140.75833" />
+       cx="56.091663"
+       cy="140.62604" />
     <ellipse
-       ry="0.26457998"
-       rx="1.0583333"
-       style="fill:#000000;fill-rule:evenodd;stroke-width:0.330727;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke"
+       ry="0.41340902"
+       rx="1.1906253"
+       style="fill:#000000;fill-rule:evenodd;stroke-width:0.438488;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke"
        id="circle62750"
        cx="62.441666"
-       cy="140.75833" />
+       cy="140.64258" />
     <path
        sodipodi:nodetypes="ccccccccc"
        inkscape:connector-curvature="0"
@@ -1956,22 +1956,22 @@
        id="circle62974"
        style="fill:#000000;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
     <ellipse
-       ry="5.8208303"
+       ry="6.3499985"
        rx="6.3499999"
-       cy="110.59583"
+       cy="110.06667"
        cx="262.46667"
        id="circle62976"
-       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.633298;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
     <path
        sodipodi:nodetypes="cccc"
        inkscape:connector-curvature="0"
-       d="m 260.08542,109.00833 -1.5875,-1.5875 m 0,1.5875 1.5875,-1.5875"
+       d="m 260.08542,107.68542 -1.5875,-1.5875 m 0,1.5875 1.5875,-1.5875"
        style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.79375;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
        id="path62984" />
     <path
        id="path62987"
        style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.79375;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
-       d="m 266.43542,109.00833 -1.5875,-1.5875 m 0,1.5875 1.5875,-1.5875"
+       d="m 266.43542,107.68542 -1.5875,-1.5875 m 0,1.5875 1.5875,-1.5875"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccc" />
     <text

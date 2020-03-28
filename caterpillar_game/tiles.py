@@ -136,7 +136,7 @@ class Grass(EdibleTile):
     def tick(self, dt):
         if self.flower:
             self.flower.tick(dt)
-        super().tick(dt)
+        return super().tick(dt)
 
     def grow_flower(self):
         if self.flower:
@@ -146,7 +146,7 @@ class Grass(EdibleTile):
 
 
 @register('flower')
-class Flower(Tile):
+class Flower(EdibleTile):
     def prepare(self):
         self.start_t = self.grid.t
         self.end_t = None
@@ -248,7 +248,8 @@ class Boulder(Tile):
 
 @register('w')
 class Mushroom(EdibleTile):
-    pass
+    def enter(self, caterpillar):
+        super().enter(caterpillar)
 
 @register('t')
 class SoporificMushroom(EdibleTile):

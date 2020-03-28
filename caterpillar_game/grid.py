@@ -237,9 +237,7 @@ class Grid:
         else:
             self.main_score_label.text = str(self.total_score)
         if not (0 < amount < 5):
-            label = self.add_label(
-                f'{amount:+1}',
-            )
+            label = self.add_label(f'{amount:+1}', x, y)
             if amount > 0:
                 label._caterpillar_color = 250, 255, 200
             else:
