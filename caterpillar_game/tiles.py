@@ -244,9 +244,6 @@ class Mushroom(Tile):
     def prepare(self):
         self.sprite = self.make_sprite()
 
-    def is_edge(self, caterpillar):
-        return True
-
 @register('S')
 @register('T')
 @register('W')
@@ -268,9 +265,6 @@ class Diamond(Tile):
 class Apple(Tile):
     def prepare(self):
         self.sprite = self.make_sprite()
-
-    def is_edge(self, caterpillar):
-        return True
 
 @register('*')
 class Star(Tile):

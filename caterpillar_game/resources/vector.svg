@@ -437,9 +437,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="887.68959"
-     inkscape:cy="334.70931"
+     inkscape:zoom="4"
+     inkscape:cx="939.48838"
+     inkscape:cy="340.25125"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -1985,6 +1985,60 @@
          x="272.77438"
          id="tspan62989"
          sodipodi:role="line">← keep this one empty!</tspan></text>
+    <circle
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke"
+       id="circle62993"
+       cx="245.53333"
+       cy="93.133331"
+       r="6.3499999" />
+    <circle
+       r="1.0583333"
+       cy="89.958328"
+       cx="242.35834"
+       id="circle62995"
+       style="fill:#000000;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
+    <circle
+       r="1.0583333"
+       cy="89.958328"
+       cx="248.70833"
+       id="circle62997"
+       style="fill:#000000;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
+    <circle
+       r="6.3499999"
+       cy="93.133331"
+       cx="245.53333"
+       id="circle62999"
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
+    <circle
+       style="fill:#000000;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke"
+       id="circle63001"
+       cx="242.35834"
+       cy="89.958328"
+       r="1.0583333" />
+    <circle
+       style="fill:#000000;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke"
+       id="circle63003"
+       cx="248.70833"
+       cy="89.958328"
+       r="1.0583333" />
+    <circle
+       r="6.3499999"
+       cy="93.133331"
+       cx="245.53333"
+       id="circle63005"
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.392157;paint-order:fill markers stroke" />
+    <circle
+       style="fill:none;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;paint-order:fill markers stroke;stroke:#000000"
+       id="circle63007"
+       cx="242.35834"
+       cy="89.958328"
+       r="1.0583333" />
+    <circle
+       style="fill:none;fill-rule:evenodd;stroke-width:0.661458;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;paint-order:fill markers stroke;stroke:#000000"
+       id="circle63009"
+       cx="248.70833"
+       cy="89.958328"
+       r="1.0583333" />
   </g>
   <script
      id="mesh_polyfill"

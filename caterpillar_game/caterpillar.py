@@ -76,9 +76,20 @@ class Segment:
         if not self.visible:
             return
         if fate == 'crash' and is_head:
-            t *= 0.5
-            if ct and ct > 0.5:
-                sprite.image = get_image('crushed')
+            if self.launched:
+                t *= 1.5
+            else:
+                t *= 0.5
+            if ct:
+                cct = ct
+                if ct > 0.5:
+                    sprite.image = get_image('crushed')
+                    cct = 0.5
+                if self.launched:
+                    cct /= 4
+                dx, dy = self.direction
+                sprite.scale_x = 1 - cct * dx / 2 + cct * dy / 4
+                sprite.scale_y = 1 - cct * dy / 2 + cct * dx / 4
         if fate == 'drown' and is_head and ct > 1:
             lt = t - (t/1.5)**3
             sprite.x = lerp(self.from_x, self.x, lt) * TILE_WIDTH
@@ -100,6 +111,8 @@ class Segment:
             wiggle = 2
         else:
             wiggle = i % 2 * 20 - 10
+        if fate == 'fall' and is_head:
+            wiggle *= 8
         sprite.rotation = lerp(
             self.from_angle, get_dir_angle(self.direction), t
         ) + math.sin(t * math.tau * 2) * wiggle
@@ -111,6 +124,8 @@ class Segment:
                     sprite.rotation += ct * 90
                 sprite.color = 0, lerp(255, 100, ct), 0
         if self.launched:
+            if fate == 'crash':
+                t *= 1.2
             amount = (1 - (1-2*t)**2)
             sprite.y += amount * TILE_WIDTH * 2 / 3
 
@@ -239,7 +254,7 @@ class Caterpillar:
             if len(self.segments) > 1:
                 self.segments.popleft()
             else:
-                self.sprites[0].image = get_image('void')
+                self.segments[0].visible = False
         elif self.fate and self.fate != 'cocooning':
             pass
         else:
@@ -263,3 +278,4 @@ class Caterpillar:
         self.grid.signal_game_over(
             random.choice(messages.strip().splitlines()).strip()
         )
+        self.sprites[0].image = get_image('scared')

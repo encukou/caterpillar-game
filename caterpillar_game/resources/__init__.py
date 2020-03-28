@@ -52,6 +52,7 @@ SPRITES = {
     'spinner': (14, 2),
     'crushed': (15, 2),
 
+    'scared': (14, 3),
     'void': (15, 3),
 
     'tile': (0, 4),
