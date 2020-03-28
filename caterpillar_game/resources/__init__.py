@@ -51,12 +51,12 @@ SPRITES = {
     'go-off': (12, 2),
     'go-enter': (13, 2),
     'spinner': (14, 2),
-    'crushed': (15, 2),
 
     'scared': (14, 3),
     'void': (15, 3),
 
     'tile': (0, 4),
+    'crushed': (15, 4),
 }
 
 BUTTERFLY_ANCHORS = {

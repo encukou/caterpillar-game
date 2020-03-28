@@ -12,7 +12,9 @@ class GameState:
         self.broods = []
         self.in_tutorial = True
         self.butterflies = []
-        self.accessible_levels = [True] + [False] * 9
+        self.accessible_levels = [False] * 10
+        self.accessible_levels[0] = self.accessible_levels[5] = True
+        self.last_level = 0
 
     def save(self, path=SAVE_PATH):
         with SAVE_PATH.open('w') as f:
@@ -37,7 +39,12 @@ class GameState:
         self.in_tutorial = data['in_tutorial']
         self.butterflies = [Butterfly.from_dict(b) for b in data['butterflies']]
         self.accessible_levels = data['accessible_levels']
+        self.last_level = data['last_level']
         self.adjust()
+
+    @property
+    def is_emergency(self):
+        return (self.count_eggs(max=2) + len(self.butterflies)) < 1#3
 
     def adjust(self):
         if (self.count_eggs(max=2) + len(self.butterflies)) < 2:
@@ -51,13 +58,14 @@ class GameState:
             'in_tutorial': self.in_tutorial,
             'butterflies': [b.to_dict() for b in self.butterflies],
             'accessible_levels': self.accessible_levels,
+            'last_level': self.last_level,
         }
 
     def count_eggs(self, max=None):
         count = 0
         for brood in self.broods:
             count += len(brood)
-            if count >= max:
+            if max is not None and count >= max:
                 return count
         return count
 

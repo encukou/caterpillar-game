@@ -8,6 +8,9 @@ KEY_MAP = {
     pyglet.window.key.RIGHT: 'right',
     pyglet.window.key.UP: 'up',
     pyglet.window.key.DOWN: 'down',
+
+    **{getattr(pyglet.window.key, f'_{i}'): str(i) for i in range(10)},
+    **{getattr(pyglet.window.key, f'NUM_{i}'): str(i) for i in range(10)},
 }
 
 class Window(pyglet.window.Window):
@@ -42,4 +45,6 @@ class Window(pyglet.window.Window):
         elif command == 'screenshot':
             pyglet.image.get_buffer_manager().get_color_buffer().save('screenshot.png')
         elif command is not None:
-            self.scene.handle_command(command)
+            handle_command = getattr(self.scene, 'handle_command')
+            if handle_command:
+                handle_command(command)
