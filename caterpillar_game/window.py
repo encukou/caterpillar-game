@@ -25,7 +25,7 @@ KEY_MAP = {
 class Window(pyglet.window.Window):
     def __init__(self, initial_scene=None, state=None, **kwargs):
         super().__init__(width=WIDTH, height=HEIGHT, resizable=True)
-        self.set_caption('Butterfly Effect')
+        self.set_caption('Caterpillar Effect')
         if initial_scene is None:
             initial_scene = LevelSelect(state, self)
         self.scene = initial_scene
