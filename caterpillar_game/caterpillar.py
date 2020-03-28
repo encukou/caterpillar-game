@@ -94,6 +94,17 @@ class Segment:
             sprite.x = lerp(self.from_x, self.x, lt) * TILE_WIDTH
             sprite.y = lerp(self.from_y, self.y, lt) * TILE_WIDTH
             sprite.scale = (1-t) * TILE_WIDTH / sprite.image.width
+        elif fate == 'unsail' and ct > 1:
+            ct -= 1
+            ct /= 4
+            lt = 1 - (1 - ct) ** 2
+            sprite.x = lerp(self.from_x, self.x, 1+lt/3) * TILE_WIDTH
+            sprite.x += + math.sin(t*6) * ct * TILE_WIDTH / (i % 2 * 16 - 8)
+            sprite.y = lerp(self.from_y, self.y, 1+lt/3) * TILE_WIDTH
+            if ct > 1:
+                sprite.scale = 0
+            else:
+                sprite.scale = (1-lt) * TILE_WIDTH / sprite.image.width
         elif fate == 'fall' and is_head and ct > 1:
             sprite.x = lerp(self.from_x, self.x, t/6) * TILE_WIDTH
             sprite.y = lerp(self.from_y, self.y, t/6) * TILE_WIDTH
@@ -111,7 +122,7 @@ class Segment:
         else:
             wiggle = i % 2 * 20 - 10
         if fate == 'fall' and is_head:
-            wiggle *= 8
+            wiggle *= 4 * (t+1)
         sprite.rotation = lerp(
             self.from_angle, get_dir_angle(self.direction), t
         ) + math.sin(t * math.tau * 2) * wiggle
@@ -138,6 +149,7 @@ class Caterpillar:
         self.grid = grid
         self.direction = direction
         self.pause_label = None
+        self.swimming = False
         self.egg = egg
         self.zt = 0
         dx, dy = direction
@@ -191,6 +203,8 @@ class Caterpillar:
 
     def turn(self, direction):
         if self.fate:
+            return
+        if self.swimming:
             return
         x, y = direction
         head = self.segments[-1]
@@ -263,6 +277,8 @@ class Caterpillar:
                 if not self.grid[head.x + nxd, head.y + nyd].is_edge(self):
                     self.turn((nxd, nyd))
                     return self.step(force_eat=force_eat, recursing=True)
+        if self.swimming and not head_tile.is_water(self):
+            self.swimming = False
         if not self.fate:
             for segment in self.segments:
                 if segment.xy == new_head.xy and segment.visible:
@@ -270,7 +286,7 @@ class Caterpillar:
                     self.fate = 'cocooning'
                     self.moving = False
         if self.fate in ('drown', 'fall'):
-            if self.ct < 2:
+            if self.ct < 1.5:
                 self.segments.append(new_head)
             else:
                 self.sprites[0].image = self.head_image = self.body_image
@@ -290,13 +306,30 @@ class Caterpillar:
                 self.segments[0].is_fresh_end = True
             else:
                 self.segments.popleft()
+                if self.swimming:
+                    on_dry_land = False
+                    for segment in self.segments:
+                        if not self.grid[segment.xy].is_water(self):
+                            on_dry_land = True
+                            break
+                    if not on_dry_land:
+                        self.die('unsail', """
+                            Sailing is over.
+                            That bridge is too short.
+                            Dreaming of underwater butterflies?
+                            Fishes gotta eat, too!
+                            Pray to the Drowned God.
+                            Disqualified for underwater recovery.
+                            Finding Nemo?
+                            That went swimmingly... Not.
+                        """)
 
     def make_butterfly(self):
         return self.egg.make_butterfly(self.collected_hues)
 
     def die(self, fate, messages):
         self.fate = fate
-        if fate not in ('drown', 'fall'):
+        if fate not in ('drown', 'fall', 'unsail'):
             self.moving = False
         self.grid.signal_game_over(
             random.choice(messages.strip().splitlines()).strip()
@@ -313,6 +346,13 @@ class Caterpillar:
         self.collected_items.add(item)
         self.grid.update_collected(self)
         return added
+
+    def use(self, item):
+        if item in self.collected_items:
+            self.collected_items.remove(item)
+            return True
+            self.grid.update_collected(self)
+        return False
 
     def utter(self, utterance, randomize_x=0, randomize_y=0):
         head = self.segments[-1]

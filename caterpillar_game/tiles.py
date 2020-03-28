@@ -56,6 +56,10 @@ class Tile:
     def launch(self, caterpillar):
         return False
 
+    def is_water(self, caterpillar):
+        return False
+
+
 empty = Tile(None, -1, -1)
 
 class Edge(Tile):
@@ -212,6 +216,12 @@ class Flower(EdibleTile):
 @register('≈')
 class Water(Tile):
     def enter(self, caterpillar):
+        if caterpillar.swimming:
+            return
+        if caterpillar.use('mushroom-w'):
+            caterpillar.utter('WHOA!')
+            caterpillar.swimming = True
+            return
         caterpillar.die('drown', '''
             Hmm... What's drown here?
             You met with a watery fate.
@@ -219,6 +229,9 @@ class Water(Tile):
             No mushrooms left for crossing.
             No new butterfly today.
         ''')
+
+    def is_water(self, caterpillar):
+        return True
 
 @register('#')
 class Abyss(Tile):
@@ -243,6 +256,7 @@ class Boulder(Tile):
             Do caterpillars really need gravestones?
             No new butterfly today.
             Grow some wings first.
+            Birds gotta eat, too.
             Ouch!
         ''')
 

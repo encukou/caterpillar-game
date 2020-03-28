@@ -273,7 +273,6 @@ class Grid:
 
     def update_collected(self, caterpillar):
         for item in caterpillar.collected_items.difference(self.collected_sprites):
-            print(item)
             for i in range(100):
                 for sprite in self.collected_sprites.values():
                     if sprite._caterpillar_i == i:
