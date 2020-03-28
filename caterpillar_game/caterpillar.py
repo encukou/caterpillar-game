@@ -176,6 +176,8 @@ class Caterpillar:
         self.sprites = [sprite]
         self.collected_hues = []
         self.collected_items = set()
+        
+        self.collect('boulder')
 
     def draw(self):
         while len(self.sprites) < len(self.segments):
@@ -203,8 +205,17 @@ class Caterpillar:
                 sprite.opacity = self.grid.caterpillar_opacity
             else:
                 sprite.opacity = False
-            if is_head and 'mushroom-w' in self.collected_items:
-                sprite.color = 0, 255, 150
+            if is_head:
+                can_swim = 'mushroom-w' in self.collected_items
+                can_bash = 'mushroom-s' in self.collected_items
+                if can_swim and can_bash:
+                    sprite.color = 150, 200, 200
+                elif can_swim:
+                    sprite.color = 0, 255, 200
+                elif can_bash:
+                    sprite.color = 150, 200, 150
+                else:
+                    sprite.color = 100, 255, 0
             else:
                 sprite.color = 100, 255, 0
         self.batch.draw()

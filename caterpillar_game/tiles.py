@@ -247,18 +247,22 @@ class Abyss(Tile):
 @register('%')
 class Boulder(Tile):
     def enter(self, caterpillar):
-        caterpillar.die('crash', '''
-            Can't eat that!
-            You ran into a boulder.
-            Squished by a boulder.
-            This is too heavy!
-            An impassable boulder blocks the way.
-            Do caterpillars really need gravestones?
-            No new butterfly today.
-            Grow some wings first.
-            Birds gotta eat, too.
-            Ouch!
-        ''')
+        if caterpillar.use('mushroom-s'):
+            caterpillar.grid[self.x, self.y] = None
+            caterpillar.utter('HYIAH!')
+        else:
+            caterpillar.die('crash', '''
+                Can't eat that!
+                You ran into a boulder.
+                Squished by a boulder.
+                This is too heavy!
+                An impassable boulder blocks the way.
+                Do caterpillars really need gravestones?
+                No new butterfly today.
+                Grow some wings first.
+                Birds gotta eat, too.
+                Ouch!
+            ''')
 
 @register('w')
 class BubblyMushroom(EdibleTile):
@@ -277,7 +281,11 @@ class SoporificMushroom(EdibleTile):
 class StrengthMushroom(EdibleTile):
     def enter(self, caterpillar):
         super().enter(caterpillar)
-        caterpillar.pause('?')
+        if 'boulder' in caterpillar.collected_items:
+            caterpillar.collect('mushroom-s')
+            caterpillar.utter('YOU FEEL STRONGER')
+        else:
+            caterpillar.pause('?')
 
 @register('S')
 @register('T')

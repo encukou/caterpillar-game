@@ -289,7 +289,6 @@ class Grid:
             sprite.scale = 1/4
             self.collected_sprites[item] = sprite
         for name, sprite in list(self.collected_sprites.items()):
-            print(name, sprite, caterpillar.collected_items)
             if name not in caterpillar.collected_items:
                 sprite.delete()
                 del self.collected_sprites[name]
