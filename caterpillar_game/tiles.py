@@ -181,8 +181,13 @@ class Water(Tile):
     def prepare(self):
         self.sprite = self.make_sprite()
 
-    def is_edge(self, caterpillar):
-        return True
+    def enter(self, caterpillar):
+        caterpillar.die('drown', '''
+            Hmm... What's drown here?
+            You met with a watery fate.
+            Frogs gotta eat, too.
+            No mushrooms left for crossing.
+        ''')
 
 @register('#')
 class Abyss(Tile):
@@ -204,7 +209,7 @@ class Boulder(Tile):
             Squished by a boulder.
             This is too heavy!
             A impassable boulder blocks the way.
-            How many caterpillars have gravestones?
+            Do caterpillars really need gravestones?
             Tough luck.
             No new butterfly today.
             Ouch!

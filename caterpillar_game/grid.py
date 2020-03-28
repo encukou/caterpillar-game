@@ -190,9 +190,11 @@ class Grid:
                 self.main_score_label.text = ''
         if self.gameover_t is not None:
             gt = (self.t - self.gameover_t)
+            n = 30
+            b = int(min(255-n, (255-n) * gt))
+            o = int(math.sin(gt * math.tau / 2) * n)
             self.gameover_label.color = (
-                255, 255, 255,
-                int(min(234, 234 * gt) - math.sin(gt * math.tau / 3) * 21)
+                b-o, b-o, b-o, 255
             )
 
     def handle_command(self, command):

@@ -68,7 +68,12 @@ class Segment:
             t *= 0.5
             if ct and ct > 0.5:
                 sprite.image = get_image('crushed')
-        if self.is_fresh_end:
+        if fate == 'drown' and is_head and ct > 1:
+            lt = t - (t/1.5)**3
+            sprite.x = lerp(self.from_x, self.x, lt) * TILE_WIDTH
+            sprite.y = lerp(self.from_y, self.y, lt) * TILE_WIDTH
+            sprite.scale = (1-t/2) * TILE_WIDTH / sprite.image.width
+        elif self.is_fresh_end:
             sprite.x = self.x * TILE_WIDTH
             sprite.y = self.y * TILE_WIDTH
             sprite.scale = (t/2+1/2) * TILE_WIDTH / sprite.image.width
@@ -96,6 +101,7 @@ class Caterpillar:
     def __init__(self, grid, egg, direction=(+1, 0), x=None, y=None):
         self.cocooned = False
         self.fate = None
+        self.moving = True
         self.grid = grid
         self.direction = direction
         self.egg = egg
@@ -145,7 +151,7 @@ class Caterpillar:
         self.batch.draw()
 
     def turn(self, direction):
-        if not self.fate:
+        if self.moving and not self.fate:
             x, y = direction
             head = self.segments[-1]
             fx, fy = head.from_direction
@@ -155,8 +161,8 @@ class Caterpillar:
 
     def tick(self, dt):
         if self.fate:
-            if self.fate:
-                self.ct += dt
+            self.ct += dt
+        if not self.moving:
             self.t += dt
             if self.t > 0.5:
                 self.t = 0.5
@@ -185,18 +191,33 @@ class Caterpillar:
             if segment.xy == new_head.xy:
                 new_head.look(segment.direction)
                 self.fate = 'cocooning'
-        self.segments.append(new_head)
-        should_grow = head_tile.enter(self)
-        if should_grow:
-            self.segments[0].is_fresh_end = True
+                self.moving = False
+        if self.fate == 'drown':
+            if self.ct < 2:
+                self.segments.append(new_head)
+            else:
+                self.sprites[0].image = self.head_image = self.body_image
+            if len(self.segments) > 1:
+                self.segments.popleft()
+            else:
+                self.sprites[0].image = get_image('void')
+        elif self.fate and self.fate != 'cocooning':
+            pass
         else:
-            self.segments.popleft()
+            self.segments.append(new_head)
+            should_grow = head_tile.enter(self)
+            if should_grow:
+                self.segments[0].is_fresh_end = True
+            else:
+                self.segments.popleft()
 
     def make_butterfly(self):
         return self.egg.make_butterfly(self.collected_hues)
 
     def die(self, fate, messages):
         self.fate = fate
+        if fate != 'drown':
+            self.moving = False
         self.grid.signal_game_over(
             random.choice(messages.strip().splitlines()).strip()
         )
