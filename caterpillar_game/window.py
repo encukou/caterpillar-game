@@ -1,6 +1,9 @@
+import traceback
+
 import pyglet
 
 from .util import pushed_matrix
+from .ui import LevelSelect
 
 WIDTH = 1024
 HEIGHT = 576
@@ -13,14 +16,17 @@ KEY_MAP = {
     pyglet.window.key.RIGHT: 'right',
     pyglet.window.key.UP: 'up',
     pyglet.window.key.DOWN: 'down',
+    pyglet.window.key.ENTER: 'go',
 
     **{getattr(pyglet.window.key, f'_{i}'): str(i) for i in range(10)},
     **{getattr(pyglet.window.key, f'NUM_{i}'): str(i) for i in range(10)},
 }
 
 class Window(pyglet.window.Window):
-    def __init__(self, initial_scene, **kwargs):
+    def __init__(self, initial_scene=None, state=None, **kwargs):
         super().__init__(width=WIDTH, height=HEIGHT, resizable=True)
+        if initial_scene is None:
+            initial_scene = LevelSelect(state, self)
         self.scene = initial_scene
 
     def run(self, fps=30):
@@ -42,11 +48,10 @@ class Window(pyglet.window.Window):
         with pushed_matrix():
             # Draw current scene
             pyglet.gl.glScalef(zoom, zoom, 1)
-            pyglet.gl.glTranslatef(translate_x, translate_y, 1)
+            pyglet.gl.glTranslatef(translate_x, translate_y, 0)
             try:
                 self.scene.draw()
             except:
-                import traceback
                 traceback.print_exc()
                 raise
 
@@ -54,14 +59,21 @@ class Window(pyglet.window.Window):
         self.scene.tick(dt)
 
     def on_key_press(self, key, mod):
-        command = KEY_MAP.get(key)
-        if command == 'fullscreen':
-            self.set_fullscreen(not self.fullscreen)
-        elif command == 'end':
-            raise KeyboardInterrupt()
-        elif command == 'screenshot':
-            pyglet.image.get_buffer_manager().get_color_buffer().save('screenshot.png')
-        elif command is not None:
-            handle_command = getattr(self.scene, 'handle_command')
-            if handle_command:
-                handle_command(command)
+        try:
+            command = KEY_MAP.get(key)
+            if command == 'fullscreen':
+                self.set_fullscreen(not self.fullscreen)
+            elif command == 'screenshot':
+                pyglet.image.get_buffer_manager().get_color_buffer().save('screenshot.png')
+            elif command is not None:
+                handle_command = getattr(self.scene, 'handle_command')
+                if handle_command:
+                    handled = handle_command(command)
+                    if handled:
+                        return
+
+            if command == 'end':
+                self.close()
+        except:
+            traceback.print_exc()
+            raise

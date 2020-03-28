@@ -104,6 +104,8 @@ def get_spritesheet_image():
 
 @functools.lru_cache()
 def get_image(name, anchor_x=0.5, anchor_y=0.5, width=1, height=1):
+    if isinstance(name, str) and name.startswith('key:'):
+        name = 'key'
     try:
         x, y = SPRITES[name]
     except KeyError:

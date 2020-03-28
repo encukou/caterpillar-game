@@ -1,6 +1,7 @@
 import pyglet
 
-from .resources import get_image, FONT_INFO
+from .resources import get_image, FONT_INFO, HALF_FONT_INFO
+from .grid import Grid
 
 WIDTH = 1024
 HEIGHT = 576
@@ -35,8 +36,9 @@ def mksprite(*args, **kwargs):
     return sprite
 
 class LevelSelect:
-    def __init__(self, state):
+    def __init__(self, state, window):
         self.state = state
+        self.window = window
         self.chosen_level = self.state.last_level
         self.batch = pyglet.graphics.Batch()
         self.butterfly_label = pyglet.text.Label(
@@ -122,6 +124,32 @@ class LevelSelect:
             )
             for i, (x, y) in enumerate(LEVEL_POSITIONS)
         ]
+        self.witticism_labels = [
+            pyglet.text.Label(
+                f'WHERE SHALL THIS EGG HATCH',
+                **HALF_FONT_INFO.label_args(),
+                anchor_x='center',
+                anchor_y='baseline',
+                x=256,
+                y=96,
+                width=384,
+                color=DARK + (255,),
+                batch=self.batch,
+                group=groups[3],
+            ),
+            pyglet.text.Label(
+                f'AND TRY TO MAKE A COCOON?',
+                **HALF_FONT_INFO.label_args(),
+                anchor_x='center',
+                anchor_y='baseline',
+                x=256,
+                y=96-16-8,
+                width=384,
+                color=DARK + (255,),
+                batch=self.batch,
+                group=groups[3],
+            ),
+        ]
         self.elements = [
             mksprite(
                 get_image('solid', 0, 0),
@@ -172,6 +200,14 @@ class LevelSelect:
                 x=748,
                 yy=35,
             ),
+            mksprite(
+                get_image('egg'),
+                batch=self.batch,
+                group=groups[3],
+                color=WHITE,
+                x=256,
+                yy=388,
+            ),
         ]
         self.update()
 
@@ -218,4 +254,15 @@ class LevelSelect:
             level = int(command)
             if self.state.accessible_levels[level] and not self.state.is_emergency:
                 self.chosen_level = level
+        if command == 'go':
+            self.window.scene = Grid(
+                state=self.state,
+                #egg=None,
+                level=self.chosen_level,
+                ui=self,
+            )
+        self.update()
+
+    def activate(self):
+        self.window.scene = self
         self.update()

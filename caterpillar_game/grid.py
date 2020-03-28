@@ -15,8 +15,9 @@ SPEED = 2
 
 
 class Grid:
-    def __init__(self, state, egg=None, level=0):
+    def __init__(self, state, egg=None, level=0, ui=None):
         self.state = state
+        self.ui = ui
         self.egg = egg
         self.width = 31
         self.height = 17
@@ -207,6 +208,9 @@ class Grid:
             self.caterpillar.turn(LEFT)
         elif command == 'right':
             self.caterpillar.turn(RIGHT)
+        elif command == 'end' and self.ui:
+            self.ui.activate()
+            return True
 
     def __getitem__(self, x_y):
         x, y = x_y

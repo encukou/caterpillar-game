@@ -108,7 +108,7 @@
     <linearGradient
        osb:paint="solid"
        id="linearGradient1485"
-       gradientTransform="matrix(0.20056168,0,0,0.00289009,-164.23048,344.07726)">
+       gradientTransform="matrix(0.04422104,0,0,7.6466964e-4,-4.1076433,91.037107)">
       <stop
          id="stop1483"
          offset="0"
@@ -505,9 +505,9 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="px"
-     inkscape:cy="1064.2277"
-     inkscape:cx="726.63401"
-     inkscape:zoom="1.4142136"
+     inkscape:cy="808.57032"
+     inkscape:cx="750.59907"
+     inkscape:zoom="16"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1.0"

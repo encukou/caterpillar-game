@@ -17,7 +17,7 @@ except (IndexError, ValueError):
 
 #window = Window(Grid(state, level=level))
 #window = Window(Demo())
-window = Window(LevelSelect(state))
+window = Window(state=state)
 
 if 'ENTR_ON' in os.environ:
     # for rapid prototyping (entr), put window somewhat out of the way
