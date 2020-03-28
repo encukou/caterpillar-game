@@ -7,11 +7,17 @@ tileinfo = {
     0xa0000082: {'str': '@', 'dx': +1, 'dy': 0},
     0x60000082: {'str': '@', 'dx': -1, 'dy': 0},
 }
+convertfuncs = {
+    'int': int,
+    'string': str,
+}
 for tileset in LEVELS['tilesets']:
     firstgid = tileset['firstgid']
     tileinfo.update({
         tile['id'] + firstgid: {
-            **{p['name']: p['value'] for p in tile.get('properties', ())},
+            **{
+                p['name']: convertfuncs[p['type']](p['value'])
+                for p in tile.get('properties', ())},
             'sprite': (8 - tile['id'] // 16) * 16 + (tile['id'] % 16),
         }
         for tile in tileset['tiles']
@@ -43,8 +49,7 @@ def load_level_to_grid(level, grid):
                     grid[x, ny].grow_flower()
                 elif tile_str == '@':
                     grid.add_caterpillar(
-                        x, ny,
-                        (int(props['dx']), int(props['dy']))
+                        x, ny, (props['dx'], props['dy'])
                     )
                 else:
                     assert tile < 1000, hex(tile)

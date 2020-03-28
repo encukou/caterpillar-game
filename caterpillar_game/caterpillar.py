@@ -151,13 +151,18 @@ class Caterpillar:
         self.batch.draw()
 
     def turn(self, direction):
-        if self.moving and not self.fate:
-            x, y = direction
-            head = self.segments[-1]
-            fx, fy = head.from_direction
-            if x != -fx or y != -fy:
-                self.direction = direction
-                self.segments[-1].look(direction)
+        if not self.moving:
+            return
+        if self.fate:
+            return
+        if not self.grid[self.segments[-1].xy].attempt_turn(self, direction):
+            return
+        x, y = direction
+        head = self.segments[-1]
+        fx, fy = head.from_direction
+        if x != -fx or y != -fy:
+            self.direction = direction
+            self.segments[-1].look(direction)
 
     def tick(self, dt):
         if self.fate:

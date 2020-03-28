@@ -4,7 +4,7 @@ import random
 import pyglet
 
 from .resources import get_image, TILE_WIDTH
-from .util import UP, DOWN, LEFT, RIGHT, get_color, lerp, random_hue
+from .util import UP, DOWN, LEFT, RIGHT, get_color, lerp, random_hue, flip
 
 @dataclasses.dataclass
 class Tile:
@@ -45,11 +45,23 @@ class Tile:
     def grow_flower(self):
         return False
 
+    def attempt_turn(self, caterpillar, new_direction):
+        return True
+
 empty = Tile(None, -1, -1)
 
 class Edge(Tile):
     def is_edge(self, caterpillar):
         return True
+
+    def enter(self, caterpillar):
+        caterpillar.die('crash', '''
+            Out of the box? Keep to thinking.
+            It's the edge of the world as we know it.
+            Grow some wings first.
+            The next world is waiting...
+            No new butterfly today.
+        ''')
 
 edge = Edge(None, -1, -1)
 
@@ -187,6 +199,7 @@ class Water(Tile):
             You met with a watery fate.
             Frogs gotta eat, too.
             No mushrooms left for crossing.
+            No new butterfly today.
         ''')
 
 @register('#')
@@ -208,10 +221,10 @@ class Boulder(Tile):
             You ran into a boulder.
             Squished by a boulder.
             This is too heavy!
-            A impassable boulder blocks the way.
+            An impassable boulder blocks the way.
             Do caterpillars really need gravestones?
-            Tough luck.
             No new butterfly today.
+            Grow some wings first.
             Ouch!
         ''')
 
@@ -239,6 +252,7 @@ class Diamond(Tile):
             This is too hard!
             Gemstone turned gravestone.
             No new butterfly today.
+            Tough luck.
         ''')
 
 @register('$')
@@ -269,9 +283,16 @@ class Star(Tile):
 class ArrowPad(Tile):
     def prepare(self):
         self.sprite = self.make_sprite()
+        self.direction = self.props['dx'], self.props['dy']
+
+    def enter(self, caterpillar):
+        caterpillar.turn(self.direction)
+
+    def attempt_turn(self, caterpillar, new_direction):
+        return new_direction == self.direction
 
     def is_edge(self, caterpillar):
-        return True
+        return caterpillar.direction == flip(self.direction)
 
 @register('→')
 @register('←')
