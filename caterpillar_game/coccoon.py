@@ -33,6 +33,7 @@ class Cocoon:
         self.edge_tiles = set()
         self.lines = []
         self.t = 0
+        self.last_score_t = 0
 
         self.batch = pyglet.graphics.Batch()
         self.line_batch = pyglet.graphics.Batch()
@@ -211,9 +212,9 @@ class Cocoon:
             sprite.opacity = 255
         if t < self.white_t:
             if self.pending_scores:
-                self.white_t += t
-                self.end_t += t
-                self.green_t += t
+                self.white_t += 1/2
+                self.end_t += 1/2
+                self.green_t += 1/2
                 self.update_t()
                 return
             t -= self.green_t
@@ -246,8 +247,11 @@ class Cocoon:
 
     def tick(self, dt):
         self.t += dt
-        if self.pending_scores and (self.t // .1) != ((self.t + dt) // .1):
-            self.grid.score(*self.pending_scores.pop())
+        if self.pending_scores:
+            self.last_score_t += dt
+            while self.last_score_t > 0.05 and self.pending_scores:
+                self.last_score_t -= 0.05
+                self.grid.score(*self.pending_scores.pop())
 
     def anim_butterfly(self, t):
         t -= self.white_t

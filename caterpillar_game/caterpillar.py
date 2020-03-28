@@ -102,8 +102,11 @@ class Segment:
             ct /= 4
             lt = 1 - (1 - ct) ** 2
             sprite.x = lerp(self.from_x, self.x, 1+lt/3) * TILE_WIDTH
-            sprite.x += + math.sin(t*6) * ct * TILE_WIDTH / (i % 2 * 16 - 8)
             sprite.y = lerp(self.from_y, self.y, 1+lt/3) * TILE_WIDTH
+            if self.direction[1]:
+                sprite.x += + math.sin(t*6) * ct * TILE_WIDTH / (i % 2 * 16 - 8)
+            else:
+                sprite.y += + math.sin(t*6) * ct * TILE_WIDTH / (i % 2 * 16 - 8)
             if ct > 1:
                 sprite.scale = 0
             else:
