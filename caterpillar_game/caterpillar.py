@@ -72,7 +72,11 @@ class Segment:
             lt = t - (t/1.5)**3
             sprite.x = lerp(self.from_x, self.x, lt) * TILE_WIDTH
             sprite.y = lerp(self.from_y, self.y, lt) * TILE_WIDTH
-            sprite.scale = (1-t/2) * TILE_WIDTH / sprite.image.width
+            sprite.scale = (1-t) * TILE_WIDTH / sprite.image.width
+        elif fate == 'fall' and is_head and ct > 1:
+            sprite.x = lerp(self.from_x, self.x, t/6) * TILE_WIDTH
+            sprite.y = lerp(self.from_y, self.y, t/6) * TILE_WIDTH
+            sprite.scale = (1-t) * TILE_WIDTH / sprite.image.width
         elif self.is_fresh_end:
             sprite.x = self.x * TILE_WIDTH
             sprite.y = self.y * TILE_WIDTH
@@ -160,7 +164,7 @@ class Caterpillar:
         x, y = direction
         head = self.segments[-1]
         fx, fy = head.from_direction
-        if x != -fx or y != -fy:
+        if x != -fx or y != -fy or len(self.segments) == 1:
             self.direction = direction
             self.segments[-1].look(direction)
 
@@ -197,7 +201,7 @@ class Caterpillar:
                 new_head.look(segment.direction)
                 self.fate = 'cocooning'
                 self.moving = False
-        if self.fate == 'drown':
+        if self.fate in ('drown', 'fall'):
             if self.ct < 2:
                 self.segments.append(new_head)
             else:
@@ -221,7 +225,7 @@ class Caterpillar:
 
     def die(self, fate, messages):
         self.fate = fate
-        if fate != 'drown':
+        if fate not in ('drown', 'fall'):
             self.moving = False
         self.grid.signal_game_over(
             random.choice(messages.strip().splitlines()).strip()

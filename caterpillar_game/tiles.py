@@ -207,8 +207,14 @@ class Abyss(Tile):
     def prepare(self):
         self.sprite = self.make_sprite()
 
-    def is_edge(self, caterpillar):
-        return True
+    def enter(self, caterpillar):
+        caterpillar.die('fall', '''
+            That's a long way down.
+            Should have brought a parachute.
+            Bats gotta eat, too.
+            One level down?
+            Plunge in with reckless Abaddon.
+        ''')
 
 @register('%')
 class Boulder(Tile):
@@ -298,7 +304,7 @@ class ArrowPad(Tile):
 @register('←')
 @register('↑')
 @register('↓')
-class Launcher(Tile):
+class Launcher(ArrowPad):
     def prepare(self):
         self.sprite = self.make_sprite()
 
