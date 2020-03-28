@@ -428,4 +428,5 @@ class Key(Tile):
         ''')
 
     def coccoon_info(self):
+        self.sprite.image = get_image('spent-key')
         return f'key:{self.props["opens"]}', 100

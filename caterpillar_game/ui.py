@@ -253,7 +253,7 @@ class LevelSelect:
                 yy=388- 100,
             ),
         ]
-        self.update()
+        self.activate()
 
     def update(self):
         self.butterfly_label.text = f'× {len(self.state.butterflies)}'
@@ -292,6 +292,8 @@ class LevelSelect:
                     sprite.opacity = 0
 
     def tick(self, dt):
+        if sum(self.state.accessible_levels) == 1 and self.chosen_level == 0:
+            self.handle_command('go')
         self.t += dt
         if self.overlay_t is not None:
             overlay_t = self.t - self.overlay_t
@@ -326,6 +328,11 @@ class LevelSelect:
             self.overlay_t = self.t
         self.window.scene = self
         self.update()
+        for i, available in enumerate(self.state.accessible_levels[:7]):
+            if available and i not in self.state.best_scores:
+                self.chosen_level = i
+                self.update()
+                break
 
     def handle_click(self, x, y):
         for i, (lx, ly) in enumerate(LEVEL_POSITIONS):

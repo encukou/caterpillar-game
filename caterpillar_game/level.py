@@ -61,10 +61,10 @@ def load_level_to_grid(level, grid):
                 tile = data[(grid.height - start_row - ny) * pitch + start_col + x]
                 props = tileinfo.get(tile, {})
                 tile_str = props.get('str')
-                if tile_str:
-                    print(' ' + props['str'] + ' ', end='')
-                else:
-                    print(f'{tile:^3}', end='')
+                #if tile_str:
+                #    print(' ' + props['str'] + ' ', end='')
+                #else:
+                #    print(f'{tile:^3}', end='')
                 tile_class = tiles.tile_classes.get(tile_str)
                 if tile_class:
                     grid[x, ny] = tile_class(grid, x, ny, props)
@@ -78,6 +78,7 @@ def load_level_to_grid(level, grid):
                 else:
                     assert tile < 1000, hex(tile)
         finally:
-            print()
+            pass
+            #print()
 
     grid.autogrow_flowers = False

@@ -1,7 +1,11 @@
-import importlib.resources
 import functools
 import tempfile
 import json
+
+try:
+    import importlib.resources as importlib_resources
+except ImportError:
+    import importlib_resources
 
 import pyglet
 
@@ -79,11 +83,11 @@ butterfly_images = {}
 
 # Pyglet can only load fonts from an actual file
 _font_file = tempfile.NamedTemporaryFile(suffix='Aldrich-Regular.ttf')
-_font_file.write(importlib.resources.read_binary(__name__, 'Aldrich-Regular.ttf'))
+_font_file.write(importlib_resources.read_binary(__name__, 'Aldrich-Regular.ttf'))
 pyglet.font.add_file(_font_file.name)
 FONT = pyglet.font.load('Aldrich')
 
-with importlib.resources.open_text(__name__, 'maps.json') as f:
+with importlib_resources.open_text(__name__, 'maps.json') as f:
     LEVELS = json.load(f)
 
 class FONT_INFO:
@@ -102,7 +106,7 @@ class HALF_FONT_INFO(FONT_INFO):
 def get_spritesheet_image():
     global spritesheet_image
     if spritesheet_image is None:
-        with importlib.resources.path(__name__, 'sprites.png') as p:
+        with importlib_resources.path(__name__, 'sprites.png') as p:
             spritesheet_image = pyglet.image.load(p)
     return spritesheet_image
 
@@ -128,7 +132,7 @@ def get_butterfly_image(name):
     try:
         return butterfly_images[name]
     except KeyError:
-        with importlib.resources.path(__name__, f'{name}.png') as p:
+        with importlib_resources.path(__name__, f'{name}.png') as p:
             image = pyglet.image.load(p)
         image.anchor_x = image.width // 2
         y_anchor = BUTTERFLY_ANCHORS.get(name)

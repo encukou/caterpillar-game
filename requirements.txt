@@ -2,3 +2,6 @@ pyglet==1.5.0
 bresenham==0.2.1
 pypng==0.0.20
 numpy==1.18.1
+
+importlib_resources; python_version < '3.7'
+dataclasses; python_version < '3.7'

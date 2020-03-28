@@ -1,9 +1,13 @@
 import png
-import importlib.resources
 import array
 import concurrent.futures
 import time
 import multiprocessing
+
+try:
+    import importlib.resources as importlib_resources
+except ImportError:
+    import importlib_resources
 
 import pyglet
 import numpy
@@ -15,7 +19,7 @@ from .util import get_color, decode_hue
 def get_wing_matrix():
     """Return white wing matrix with axes (width, height, patch, channel)"""
     wing_matrix = numpy.frombuffer(
-        importlib.resources.read_binary(resources, f'wings.dat'),
+        importlib_resources.read_binary(resources, f'wings.dat'),
         dtype='uint8',
     )
     wing_matrix = wing_matrix.reshape(

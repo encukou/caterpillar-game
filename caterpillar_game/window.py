@@ -1,4 +1,5 @@
 import traceback
+import datetime
 
 import pyglet
 
@@ -65,7 +66,9 @@ class Window(pyglet.window.Window):
             if command == 'fullscreen':
                 self.set_fullscreen(not self.fullscreen)
             elif command == 'screenshot':
-                pyglet.image.get_buffer_manager().get_color_buffer().save('screenshot.png')
+                filename = f'screenshot-{datetime.datetime.now().isoformat(timespec="seconds")}.png'
+                print('saving screenshot to:', filename)
+                pyglet.image.get_buffer_manager().get_color_buffer().save(filename)
             elif command is not None:
                 handle_command = getattr(self.scene, 'handle_command')
                 if handle_command:

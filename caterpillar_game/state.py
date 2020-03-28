@@ -20,7 +20,7 @@ class GameState:
     def save(self, path=SAVE_PATH):
         print('SAVING')
         as_dict = self.to_dict()
-        print(as_dict)
+        #print(as_dict)
         as_text = json.dumps(as_dict)
         SAVE_PATH.write_text(as_text)
 
@@ -50,20 +50,20 @@ class GameState:
 
     @property
     def is_emergency(self):
+        return False
         return (self.count_eggs(max=2) + len(self.butterflies)) < 1#3
 
     def adjust(self):
         self.accessible_levels[0] = True
         if (self.count_eggs(max=2) + len(self.butterflies)) < 2:
-            self.broods.append([Egg()])
-            self.butterflies.append(Butterfly())
+            self.broods.append([Egg(), Egg(), Egg(), Egg(), Egg()])
+            #self.butterflies.append(Butterfly())
             self.in_tutorial = True
         if self.best_scores.get(0):
             self.accessible_levels[2] = True
         for loot in self.level_achievements.values():
             for item in loot:
                 name, sep, number = item.partition(':')
-                print('*'*88, name, number)
                 if name == 'key' and sep:
                     number = int(number)
                     number = KEY_LEVEL_MAP.get(number, number)
