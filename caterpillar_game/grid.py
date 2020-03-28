@@ -64,10 +64,12 @@ class Grid:
             anchor_y='baseline',
             align='center',
             batch=self.score_batch,
-            color=(0, 0, 0, 0),
+            color=(255, 255, 255, 255),
             x=-.5 * TILE_WIDTH,
             y=(self.height - .5) * TILE_WIDTH + HALF_FONT_INFO.baseline,
         )
+        if not self.level:
+            self.gameover_label.text = 'Crash to form a cocoon.'.upper()
 
         self.t = 1
         if self.caterpillar is None:
@@ -239,9 +241,7 @@ class Grid:
         self.total_score += amount
         if self.total_score <= 0:
             self.total_score = 0
-            self.main_score_label.text = ''
-        else:
-            self.main_score_label.text = str(self.total_score)
+        self.main_score_label.text = str(self.total_score)
         if not (0 < amount < 5):
             label = self.add_label(f'{amount:+1}', x, y)
             if amount > 0:
