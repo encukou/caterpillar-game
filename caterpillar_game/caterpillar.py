@@ -382,6 +382,9 @@ class Caterpillar:
         added = item not in self.collected_items
         self.collected_items.add(item)
         self.grid.update_collected(self)
+        if self.collected_items.issuperset({'star', 'apple'}):
+            self.collected_items.add('ampersand')
+            self.grid.update_collected(self)
         return added
 
     def use(self, item):

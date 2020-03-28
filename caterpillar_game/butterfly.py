@@ -97,7 +97,7 @@ class Butterfly:
 
     @classmethod
     def from_dict(cls, data):
-        return cls(hues = data['hues'])
+        return cls(hues=data.get('wing', ' '*WING_PATCH_COUNT))
 
 
 class ButterflySprite:

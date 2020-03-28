@@ -271,6 +271,10 @@ class Grid:
         if self.done:
             return True
         self.shot = pyglet.image.get_buffer_manager().get_color_buffer().get_texture()
+        self.state.level_completed(
+            self.level, self.total_score, self.caterpillar.collected_items,
+            self.cocoon.butterfly,
+        )
         if self.ui:
             self.ui.activate(self.shot)
 

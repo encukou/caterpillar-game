@@ -123,7 +123,7 @@
     <linearGradient
        id="linearGradient1815"
        osb:paint="solid"
-       gradientTransform="matrix(-7.7537178e-4,-3.0069573e-4,0.00105727,-0.00364125,4.5107162,-9.6699885)">
+       gradientTransform="matrix(-8.0295765e-4,-3.1139376e-4,0.00109489,-0.0037708,-1.6544931,-14.523972)">
       <stop
          style="stop-color:#8f8f8f;stop-opacity:1;"
          offset="0"
@@ -158,7 +158,7 @@
          id="stop14082" />
     </linearGradient>
     <linearGradient
-       gradientTransform="matrix(0.00115762,0,0,0.14788617,2120.587,2272.7841)"
+       gradientTransform="matrix(0.00119881,0,0,0.15314761,2189.7067,2349.1344)"
        osb:paint="solid"
        id="linearGradient1467">
       <stop
@@ -446,9 +446,9 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="px"
-     inkscape:cy="-27.754209"
-     inkscape:cx="237.94527"
-     inkscape:zoom="1.4142136"
+     inkscape:cy="231.17556"
+     inkscape:cx="934.40869"
+     inkscape:zoom="4"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1.0"
@@ -1190,6 +1190,23 @@
        id="path62535"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccc" />
+    <path
+       inkscape:transform-center-y="-0.14794952"
+       inkscape:transform-center-x="1.1823257e-06"
+       d="m 177.8,119.19895 c 0.57891,0 1.53361,5.0916 2.00196,5.43187 0.46834,0.34027 5.60576,-0.32514 5.78465,0.22543 0.17889,0.55057 -4.36849,3.03194 -4.54738,3.58251 -0.17889,0.55057 2.0415,5.23092 1.57316,5.57119 -0.46835,0.34027 -4.23348,-3.21776 -4.81239,-3.21776 -0.5789,0 -4.34404,3.55803 -4.81238,3.21776 -0.46835,-0.34027 1.75205,-5.02062 1.57316,-5.57119 -0.1789,-0.55057 -4.72627,-3.03194 -4.54738,-3.58251 0.17889,-0.55057 5.31631,0.11484 5.78465,-0.22543 0.46834,-0.34027 1.42305,-5.43187 2.00195,-5.43187 z"
+       inkscape:randomized="0"
+       inkscape:rounded="0.1"
+       inkscape:flatsided="false"
+       sodipodi:arg2="-0.94247762"
+       sodipodi:arg1="-1.5707962"
+       sodipodi:r2="3.4059246"
+       sodipodi:r1="8.1873198"
+       sodipodi:cy="127.38627"
+       sodipodi:cx="177.8"
+       sodipodi:sides="5"
+       id="path2341"
+       style="fill:url(#linearGradient1467);fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient1815);stroke-width:0.27291;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0;paint-order:stroke fill markers"
+       sodipodi:type="star" />
     <path
        sodipodi:type="star"
        style="fill:#e2e325;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient1815);stroke-width:0.263534;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0;paint-order:stroke fill markers"
@@ -2056,6 +2073,17 @@
        id="path2323"
        d="m 40.481253,10.054167 1.85208,-1.5875004 2.11667,2.1166604 0.52917,-1.0583304 -2.11667,-1.5875 2.11667,-1.32292 -0.52917,-1.32291 -2.11667,2.11666 -1.5875,-1.32291 -0.79375,0.52916 1.85209,1.5875 -1.85209,1.5875 z"
        style="fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <text
+       id="text2345"
+       y="65.616669"
+       x="262.46667"
+       style="font-size:16.93333323px;line-height:1.25;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;stroke-width:1.32291666;stroke:#ffff3a;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers;stroke-linecap:round;stroke-linejoin:round"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Aldrich;-inkscape-font-specification:Aldrich;stroke-width:1.32291666;stroke:#ffff3a;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers;stroke-linecap:round;stroke-linejoin:round"
+         y="65.616669"
+         x="262.46667"
+         id="tspan2343"
+         sodipodi:role="line">&amp;</tspan></text>
   </g>
   <script
      type="text/javascript"

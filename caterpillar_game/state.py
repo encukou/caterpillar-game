@@ -16,10 +16,14 @@ class GameState:
         self.accessible_levels[0] = self.accessible_levels[5] = True
         self.last_level = 0
         self.level_achievements = {}
+        self.best_scores = {}
 
     def save(self, path=SAVE_PATH):
-        with SAVE_PATH.open('w') as f:
-            json.dump(f, self.to_dict())
+        print('SAVING')
+        as_dict = self.to_dict()
+        print(as_dict)
+        as_text = json.dumps(as_dict)
+        SAVE_PATH.write_text(as_text)
 
     @classmethod
     def load(cls, path=SAVE_PATH):
@@ -42,7 +46,9 @@ class GameState:
         self.accessible_levels = data['accessible_levels']
         self.last_level = data['last_level']
         self.level_achievements = data['level_achievements']
+        self.best_scores = data['best_scores']
         self.adjust()
+        return self
 
     @property
     def is_emergency(self):
@@ -53,6 +59,7 @@ class GameState:
             self.broods.append([Egg()])
             self.butterflies.append(Butterfly())
             self.in_tutorial = True
+        self.save()
 
     def to_dict(self):
         return {
@@ -62,6 +69,7 @@ class GameState:
             'accessible_levels': self.accessible_levels,
             'last_level': self.last_level,
             'level_achievements': self.level_achievements,
+            'best_scores': self.best_scores,
         }
 
     def count_eggs(self, max=None):
@@ -77,3 +85,12 @@ class GameState:
         for brood in reversed(self.broods):
             for egg in brood:
                 return egg
+
+    def level_completed(self, level, score, items, butterfly):
+        self.best_scores[level] = max(self.best_scores.get(level, 0), score)
+        self.level_achievements[level] = sorted(set([
+            *self.level_achievements.get(level, ()), *items
+        ]))
+        if butterfly:
+            self.butterflies.append(butterfly)
+        self.adjust()

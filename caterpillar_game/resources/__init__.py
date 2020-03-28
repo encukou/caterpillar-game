@@ -57,6 +57,8 @@ SPRITES = {
 
     'tile': (0, 4),
     'crushed': (15, 4),
+
+    'ampersand': (15, 5),
 }
 
 BUTTERFLY_ANCHORS = {

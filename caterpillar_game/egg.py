@@ -15,6 +15,12 @@ class Egg:
     def to_dict(self):
         return [p.to_dict() for p in self.parents]
 
+    @classmethod
+    def from_dict(cls, data):
+        self = cls()
+        self.parents = [Butterfly.from_dict(d) for d in data]
+        return self
+
     def make_butterfly(self, hues):
         sins = [0]
         coss = [0]
