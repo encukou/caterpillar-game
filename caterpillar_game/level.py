@@ -32,6 +32,19 @@ LEVEL_MAP = {
     6: 9,
     9: 1,
 }
+KEY_LEVEL_MAP = {
+    1: 2,
+    2: 2,
+    3: 2,
+
+    4: 1,
+    5: 2,
+    6: 3,
+
+    7: 4,
+    8: 5,
+    9: 6,
+}
 
 def load_level_to_grid(level, grid):
     level = LEVEL_MAP.get(level, level)

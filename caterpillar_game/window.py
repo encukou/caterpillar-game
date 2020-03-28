@@ -25,6 +25,7 @@ KEY_MAP = {
 class Window(pyglet.window.Window):
     def __init__(self, initial_scene=None, state=None, **kwargs):
         super().__init__(width=WIDTH, height=HEIGHT, resizable=True)
+        self.set_caption('Butterfly Effect')
         if initial_scene is None:
             initial_scene = LevelSelect(state, self)
         self.scene = initial_scene
@@ -77,3 +78,10 @@ class Window(pyglet.window.Window):
         except:
             traceback.print_exc()
             raise
+
+    def on_mouse_press(self, x, y, button, mod):
+        handle_click = getattr(self.scene, 'handle_click')
+        if handle_click:
+            handled = handle_click(x, y)
+            if handled:
+                return

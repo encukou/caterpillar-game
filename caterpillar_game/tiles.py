@@ -412,7 +412,11 @@ class Launcher(ArrowPad):
 @register('K')
 class Key(Tile):
     def prepare_sprite(self):
-        self.sprite = self.make_sprite(get_image('key'))
+        self.gold = not self.grid.state.have_key_for(self.props["opens"])
+        if self.gold:
+            self.sprite = self.make_sprite(get_image('key'))
+        else:
+            self.sprite = self.make_sprite(get_image('spent-key'))
 
     def enter(self, caterpillar):
         caterpillar.die('crash', '''

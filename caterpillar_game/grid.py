@@ -38,7 +38,7 @@ class Grid:
         self.background = pyglet.image.TileableTexture. create_for_image(
             get_image('tile', 0, 0, 2, 2)
         )
-        self.level = level
+        self.level = int(level)
         self.autogrow_flowers = True
         self.collected_sprites = {}
         if level == 0:

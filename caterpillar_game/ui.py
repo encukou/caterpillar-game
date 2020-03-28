@@ -15,7 +15,7 @@ SILVER = 200, 200, 200
 
 LEVEL_POSITIONS = [
     (730, 384),
-    *[(x, y) for y in (224, 144, 64) for x in (594, 728, 865)]
+    *[(x, y) for y in (224, 144, 64)[1:] for x in (594, 728, 865)]
 ]
 
 groups = [pyglet.graphics.OrderedGroup(i) for i in range(10)]
@@ -24,11 +24,14 @@ def mksprite(*args, **kwargs):
     if 'yy' in kwargs:
         kwargs['y'] = HEIGHT - kwargs.pop('yy')
     color = kwargs.pop('color', None)
+    opacity = kwargs.pop('opacity', None)
     width = kwargs.pop('width', None)
     height = kwargs.pop('height', None)
     sprite = pyglet.sprite.Sprite(*args, **kwargs)
     if color is not None:
         sprite.color = color
+    if opacity is not None:
+        sprite.opacity = opacity
     if width is not None:
         sprite.scale_x = width / sprite.image.width
     if height is not None:
@@ -62,7 +65,7 @@ class LevelSelect:
             anchor_y='baseline',
             x=463,
             y=HEIGHT-48,
-            color=WHITE + (255,),
+            color=DARK + (255,),
             batch=self.batch,
             group=groups[2],
         )
@@ -73,7 +76,7 @@ class LevelSelect:
             anchor_y='baseline',
             x=784,
             y=HEIGHT-48,
-            color=WHITE + (255,),
+            color=DARK + (255,),
             batch=self.batch,
             group=groups[2],
         )
@@ -127,26 +130,55 @@ class LevelSelect:
             )
             for i, (x, y) in enumerate(LEVEL_POSITIONS)
         ]
+        self.score_labels = [
+            pyglet.text.Label(
+                f'',
+                **HALF_FONT_INFO.label_args(),
+                anchor_x='right',
+                anchor_y='baseline',
+                x=x+72,
+                y=y+8,
+                color=DARK + (255,),
+                batch=self.batch,
+                group=groups[3],
+            )
+            for i, (x, y) in enumerate(LEVEL_POSITIONS)
+        ]
+        self.achievement_sprites = [
+            {
+                name: mksprite(
+                    get_image(name, 0, 0),
+                    batch=self.batch,
+                    group=groups[3],
+                    x=x+pos+4,
+                    y=y+40,
+                    width=24,
+                    height=24,
+                )
+                for name, pos in (('apple', 32+6), ('ampersand', 64), ('star', 96-6))
+            }
+            for i, (x, y) in enumerate(LEVEL_POSITIONS)
+        ]
         self.witticism_labels = [
             pyglet.text.Label(
-                f'WHERE SHALL THIS EGG HATCH',
+                f'WHERE SHALL THIS CATERPILLAR EGG',
                 **HALF_FONT_INFO.label_args(),
                 anchor_x='center',
                 anchor_y='baseline',
                 x=256,
-                y=96,
+                y=96+ 100,
                 width=384,
                 color=DARK + (255,),
                 batch=self.batch,
                 group=groups[3],
             ),
             pyglet.text.Label(
-                f'AND TRY TO MAKE A COCOON?',
+                f'HATCH AND TRY TO MAKE A COCOON?',
                 **HALF_FONT_INFO.label_args(),
                 anchor_x='center',
                 anchor_y='baseline',
                 x=256,
-                y=96-16-8,
+                y=96-16-8+ 100,
                 width=384,
                 color=DARK + (255,),
                 batch=self.batch,
@@ -201,6 +233,7 @@ class LevelSelect:
                 color=WHITE,
                 x=434,
                 yy=35,
+                opacity=0,
             ),
             mksprite(
                 get_image('map-icon'),
@@ -209,6 +242,7 @@ class LevelSelect:
                 color=WHITE,
                 x=748,
                 yy=35,
+                opacity=0,
             ),
             mksprite(
                 get_image('egg'),
@@ -216,7 +250,7 @@ class LevelSelect:
                 group=groups[3],
                 color=WHITE,
                 x=256,
-                yy=388,
+                yy=388- 100,
             ),
         ]
         self.update()
@@ -228,7 +262,7 @@ class LevelSelect:
         is_emergency = self.state.is_emergency
         if not self.state.accessible_levels[self.chosen_level] or self.state.is_emergency:
             self.chosen_level = 0
-        for i, available in enumerate(self.state.accessible_levels):
+        for i, available in enumerate(self.state.accessible_levels[:7]):
             if available:
                 if i and is_emergency:
                     self.level_fgs[i].color = SILVER
@@ -250,6 +284,12 @@ class LevelSelect:
                 self.level_fgs[i].opacity = 200
                 self.level_bgs[i].color = LIGHT
                 self.level_arrows[i].opacity = 0
+            self.score_labels[i].text = str(self.state.best_scores.get(i, ''))
+            for name, sprite in self.achievement_sprites[i].items():
+                if name in self.state.level_achievements.get(i, ()):
+                    sprite.opacity = 255
+                else:
+                    sprite.opacity = 0
 
     def tick(self, dt):
         self.t += dt
@@ -267,7 +307,7 @@ class LevelSelect:
     def handle_command(self, command):
         if command == '0':
             self.chosen_level = 0
-        if command in '123456789':
+        if command in '123456': # XXX 789
             level = int(command)
             if self.state.accessible_levels[level] and not self.state.is_emergency:
                 self.chosen_level = level
@@ -286,3 +326,10 @@ class LevelSelect:
             self.overlay_t = self.t
         self.window.scene = self
         self.update()
+
+    def handle_click(self, x, y):
+        for i, (lx, ly) in enumerate(LEVEL_POSITIONS):
+            if lx <= x <= (lx + 128) and ly <= y <= (ly + 72):
+                self.handle_command(str(i))
+                if self.chosen_level == i:
+                    self.handle_command('go')

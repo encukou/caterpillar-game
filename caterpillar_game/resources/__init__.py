@@ -59,6 +59,8 @@ SPRITES = {
     'crushed': (15, 4),
 
     'ampersand': (15, 5),
+
+    'spent-key': (15, 6),
 }
 
 BUTTERFLY_ANCHORS = {
