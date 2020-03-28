@@ -246,10 +246,50 @@ class Abyss(Tile):
 
 @register('%')
 class Boulder(Tile):
+    def prepare(self):
+        super().prepare()
+        self.sprites = []
+
     def enter(self, caterpillar):
         if caterpillar.use('mushroom-s'):
             caterpillar.grid[self.x, self.y] = None
             caterpillar.utter('HYIAH!')
+            self.end_t = self.grid.t
+            N = 5
+            self.sprites = []
+            image = get_image('boulder')
+            for x in range(N):
+                for y in range(N):
+                    sprite = pyglet.sprite.Sprite(
+                        image.get_region(
+                            x * image.width//N,
+                            y * image.height//N,
+                            image.width//N,
+                            image.height//N,
+                        ),
+                        batch=self.grid.batch,
+                    )
+                    sprite.start_x = (self.x + x/N - 1/2) * TILE_WIDTH
+                    sprite.start_y = (self.y + y/N - 1/2) * TILE_WIDTH
+                    sprite.end_x = (
+                        (self.x + x/N - 1/2)
+                        + random.gauss(x-N/2, 7)
+                        + caterpillar.direction[0] * 2
+                    ) * TILE_WIDTH
+                    sprite.end_y = (
+                        (self.y + y/N - 1/2)
+                        + random.gauss(y-N/2, 7)
+                        + caterpillar.direction[1] * 2
+                    ) * TILE_WIDTH
+                    sprite.rot_speed = random.uniform(-360, 360)
+                    self.sprites.append(sprite)
+            self.sprite.image = get_image('grass')
+            self.sprite.start_x = self.sprite.x
+            self.sprite.start_y = self.sprite.y
+            self.sprite.end_x = self.sprite.x+1
+            self.sprite.end_y = self.sprite.y+1
+            self.sprite.rot_speed = 10
+            self.sprites.append(self.sprite)
         else:
             caterpillar.die('crash', '''
                 Can't eat that!
@@ -263,6 +303,17 @@ class Boulder(Tile):
                 Birds gotta eat, too.
                 Ouch!
             ''')
+
+    def tick(self, dt):
+        if self.sprites:
+            t = self.grid.t - self.end_t
+            if t < 1:
+                for sprite in self.sprites:
+                    sprite.x = lerp(sprite.start_x, sprite.end_x, t)
+                    sprite.y = lerp(sprite.start_y, sprite.end_y, t)
+                    sprite.rotation = sprite.rot_speed * t
+                    sprite.opacity = (1 - t)**2 * 255
+                return True
 
 @register('w')
 class BubblyMushroom(EdibleTile):
