@@ -87,9 +87,8 @@ class Segment:
                     cct = 0.5
                 if self.launched:
                     cct /= 4
-                dx, dy = self.direction
-                sprite.scale_x = 1 - cct * dx / 2 + cct * dy / 4
-                sprite.scale_y = 1 - cct * dy / 2 + cct * dx / 4
+                sprite.scale_x = 1 + cct / 4
+                sprite.scale_y = 1 - cct / 2
         if fate == 'drown' and is_head and ct > 1:
             lt = t - (t/1.5)**3
             sprite.x = lerp(self.from_x, self.x, lt) * TILE_WIDTH
@@ -135,9 +134,12 @@ class Caterpillar:
         self.cocooned = False
         self.fate = None
         self.moving = True
+        self.paused = False
         self.grid = grid
         self.direction = direction
+        self.pause_label = None
         self.egg = egg
+        self.zt = 0
         dx, dy = direction
         self.segments = collections.deque()
         self.segments.append(Segment.make_initial(
@@ -187,26 +189,50 @@ class Caterpillar:
         self.batch.draw()
 
     def turn(self, direction):
-        if not self.moving:
-            return
         if self.fate:
-            return
-        if not self.grid[self.segments[-1].xy].attempt_turn(self, direction):
             return
         x, y = direction
         head = self.segments[-1]
         fx, fy = head.from_direction
-        if x != -fx or y != -fy or len(self.segments) == 1:
+        turning_back = x == -fx and y == -fy
+        if self.paused and not turning_back:
+            self.paused = False
+            self.moving = True
+            self.pause_label = None
+            self.sprites[0].image = self.head_image
+        if not self.moving:
+            return
+        if not self.grid[head.xy].attempt_turn(self, direction):
+            return
+        if not turning_back or len(self.segments) == 1:
             self.direction = direction
-            self.segments[-1].look(direction)
+            head.look(direction)
 
     def tick(self, dt):
         if self.fate:
             self.ct += dt
+        if self.pause_label:
+            self.zt += dt * 3
+            head = self.segments[-1]
+            while self.zt > 1:
+                self.zt -= 1
+                self.grid.add_label(
+                    self.pause_label,
+                    head.x + random.gauss(0, 1/3),
+                    head.y + random.random() / 2,
+                )
+        if self.paused:
+            dt *= (1 - self.t/2)
+            if self.t + dt > 0.75:
+                self.moving = False
         if not self.moving:
             self.t += dt
-            if self.t > 0.5:
-                self.t = 0.5
+            if self.paused:
+                threshold = 0.9
+            else:
+                threshold = 0.5
+            if self.t > threshold:
+                self.t = threshold
                 if self.fate == 'cocooning' and not self.cocooned:
                     self.cocooned = True
                     self.grid.add_cocoon(self)
@@ -279,3 +305,8 @@ class Caterpillar:
             random.choice(messages.strip().splitlines()).strip()
         )
         self.sprites[0].image = get_image('scared')
+
+    def pause(self, label=None):
+        self.sprites[0].image = get_image('asleep')
+        self.paused = True
+        self.pause_label = label

@@ -15,10 +15,15 @@ class Tile:
 
     def __post_init__(self):
         self.active = True
+        self.prepare_sprite()
         self.prepare()
 
     def prepare(self):
         pass
+
+    def prepare_sprite(self):
+        if 'sprite' in self.props:
+            self.sprite = self.make_sprite()
 
     def delete(self):
         self.active = False
@@ -83,31 +88,18 @@ def register(name):
         return cls
     return _decorator
 
-@register('grass')
-@register('_')
-class Grass(Tile):
+class EdibleTile(Tile):
     def prepare(self):
-        self.sprite = self.make_sprite(get_image('grass'), group=groups[0])
         self.end_t = None
-        self.flower = None
 
     def enter(self, caterpillar):
-        if self.flower:
-            return self.flower.enter(caterpillar, from_grass=True)
         self.grid[self.x, self.y] = None
-        if random.randrange(3) == 0:
-            self.grid.add_a_flower(grass_only=True)
-        self.grid.score(1, self.x, self.y)
         return True
 
     def delete(self):
         self.end_t = self.grid.t
-        if self.flower:
-            self.flower.delete()
 
     def tick(self, dt):
-        if self.flower:
-            self.flower.tick(dt)
         if self.end_t is not None:
             t = (self.grid.t - self.end_t) * 2
             if t > 1:
@@ -116,6 +108,35 @@ class Grass(Tile):
                 return False
             self.sprite.scale = (1 - t) / 2
             return True
+
+@register('grass')
+@register('_')
+class Grass(EdibleTile):
+    def prepare(self):
+        self.end_t = None
+        self.flower = None
+
+    def prepare_sprite(self):
+        self.sprite = self.make_sprite(get_image('grass'), group=groups[0])
+
+    def enter(self, caterpillar):
+        if self.flower:
+            return self.flower.enter(caterpillar, from_grass=True)
+        super().enter(caterpillar)
+        if random.randrange(3) == 0:
+            self.grid.add_a_flower(grass_only=True)
+        self.grid.score(1, self.x, self.y)
+        return True
+
+    def delete(self):
+        super().delete()
+        if self.flower:
+            self.flower.delete()
+
+    def tick(self, dt):
+        if self.flower:
+            self.flower.tick(dt)
+        super().tick(dt)
 
     def grow_flower(self):
         if self.flower:
@@ -150,7 +171,7 @@ class Flower(Tile):
         self.center_sprite.color = get_color(self.hue, 0.2)
 
     def enter(self, caterpillar, from_grass=False):
-        self.grid[self.x, self.y] = None
+        super().enter(caterpillar)
         caterpillar.collected_hues.append(self.hue)
         self.grid.add_a_flower()
         if random.randrange(3) == 0:
@@ -160,9 +181,6 @@ class Flower(Tile):
         else:
             self.grid.score(9, self.x, self.y)
         return True
-
-    def delete(self):
-        self.end_t = self.grid.t
 
     def tick(self, dt):
         self.petals_sprite.rotation += dt * 40
@@ -193,9 +211,6 @@ class Flower(Tile):
 
 @register('≈')
 class Water(Tile):
-    def prepare(self):
-        self.sprite = self.make_sprite()
-
     def enter(self, caterpillar):
         caterpillar.die('drown', '''
             Hmm... What's drown here?
@@ -207,9 +222,6 @@ class Water(Tile):
 
 @register('#')
 class Abyss(Tile):
-    def prepare(self):
-        self.sprite = self.make_sprite()
-
     def enter(self, caterpillar):
         caterpillar.die('fall', '''
             That's a long way down.
@@ -221,9 +233,6 @@ class Abyss(Tile):
 
 @register('%')
 class Boulder(Tile):
-    def prepare(self):
-        self.sprite = self.make_sprite()
-
     def enter(self, caterpillar):
         caterpillar.die('crash', '''
             Can't eat that!
@@ -237,12 +246,21 @@ class Boulder(Tile):
             Ouch!
         ''')
 
-@register('s')
-@register('t')
 @register('w')
-class Mushroom(Tile):
-    def prepare(self):
-        self.sprite = self.make_sprite()
+class Mushroom(EdibleTile):
+    pass
+
+@register('t')
+class SoporificMushroom(EdibleTile):
+    def enter(self, caterpillar):
+        super().enter(caterpillar)
+        caterpillar.pause('Z')
+
+@register('s')
+class StrengthMushroom(EdibleTile):
+    def enter(self, caterpillar):
+        super().enter(caterpillar)
+        caterpillar.pause('?')
 
 @register('S')
 @register('T')
@@ -263,14 +281,10 @@ class Diamond(Tile):
 
 @register('$')
 class Apple(Tile):
-    def prepare(self):
-        self.sprite = self.make_sprite()
+    pass
 
 @register('*')
 class Star(Tile):
-    def prepare(self):
-        self.sprite = self.make_sprite()
-
     def enter(self, caterpillar):
         caterpillar.die('crash', '''
             You met with a starry fate.
@@ -285,7 +299,6 @@ class Star(Tile):
 @register('v')
 class ArrowPad(Tile):
     def prepare(self):
-        self.sprite = self.make_sprite()
         self.direction = self.props['dx'], self.props['dy']
 
     def enter(self, caterpillar):

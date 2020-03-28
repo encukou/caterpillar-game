@@ -237,24 +237,31 @@ class Grid:
         else:
             self.main_score_label.text = str(self.total_score)
         if not (0 < amount < 5):
-            label = pyglet.text.Label(
+            label = self.add_label(
                 f'{amount:+1}',
-                **HALF_FONT_INFO.label_args(),
-                anchor_x='center',
-                anchor_y='baseline',
-                align='center',
-                batch=self.score_batch,
-                x=x * TILE_WIDTH,
-                y=y * TILE_WIDTH,
             )
-            self.score_labels.append(label)
-            label._caterpillar_start_t = self.t
-            label._caterpillar_x = x
-            label._caterpillar_y = y
             if amount > 0:
                 label._caterpillar_color = 250, 255, 200
             else:
                 label._caterpillar_color = 255, 230, 200
+
+    def add_label(self, label, x, y):
+        label = pyglet.text.Label(
+            label,
+            **HALF_FONT_INFO.label_args(),
+            anchor_x='center',
+            anchor_y='baseline',
+            align='center',
+            batch=self.score_batch,
+            x=x * TILE_WIDTH,
+            y=y * TILE_WIDTH,
+        )
+        self.score_labels.append(label)
+        label._caterpillar_start_t = self.t
+        label._caterpillar_x = x
+        label._caterpillar_y = y
+        label._caterpillar_color = 255, 255, 255
+        return label
 
     def signal_done(self):
         if self.done:

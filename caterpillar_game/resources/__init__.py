@@ -14,6 +14,7 @@ SPRITES = {
     'body': (0, 0),
     'head': (1, 0),
     'line': (2, 0),
+    'asleep': (3, 0),
     'coccoon_2': (4, 0),
     'coccoon_3': (5, 0),
     'coccoon_4': (6, 0),
