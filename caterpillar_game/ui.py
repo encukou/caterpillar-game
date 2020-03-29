@@ -325,6 +325,10 @@ class LevelSelect:
     def activate(self, overlay=None):
         if overlay:
             self.overlay.image = overlay
+            zoom, translate_x, translate_y = self.window.get_zoom_translate()
+            self.overlay.scale = 1/zoom
+            self.overlay.x = -translate_x
+            self.overlay.y = -translate_y
             self.overlay_t = self.t
         self.window.scene = self
         self.update()

@@ -35,9 +35,7 @@ class Window(pyglet.window.Window):
         pyglet.clock.schedule_interval(self.tick, 1/fps)
         pyglet.app.run()
 
-    def on_draw(self):
-        self.clear()
-
+    def get_zoom_translate(self):
         if self.height / HEIGHT < self.width / WIDTH:
             zoom = self.height / HEIGHT
             translate_x = (self.width / zoom - WIDTH) / 2
@@ -46,6 +44,12 @@ class Window(pyglet.window.Window):
             zoom = self.width / WIDTH
             translate_x = 0
             translate_y = (self.height / zoom - HEIGHT) / 2
+        return zoom, translate_x, translate_y
+
+    def on_draw(self):
+        self.clear()
+
+        zoom, translate_x, translate_y = self.get_zoom_translate()
 
         with pushed_matrix():
             # Draw current scene
@@ -83,6 +87,11 @@ class Window(pyglet.window.Window):
             raise
 
     def on_mouse_press(self, x, y, button, mod):
+        zoom, translate_x, translate_y = self.get_zoom_translate()
+
+        x = x / zoom - translate_x
+        y = y / zoom - translate_y
+
         handle_click = getattr(self.scene, 'handle_click')
         if handle_click:
             handled = handle_click(x, y)
