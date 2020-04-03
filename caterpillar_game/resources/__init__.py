@@ -1,6 +1,8 @@
 import functools
 import tempfile
 import json
+import os
+import atexit
 
 try:
     import importlib.resources as importlib_resources
@@ -82,8 +84,11 @@ butterfly_images = {}
 
 
 # Pyglet can only load fonts from an actual file
-_font_file = tempfile.NamedTemporaryFile(suffix='Aldrich-Regular.ttf')
+_font_file = tempfile.NamedTemporaryFile(suffix='Aldrich-Regular.ttf', delete=False)
+atexit.register(lambda: os.unlink(_font_file.name))
 _font_file.write(importlib_resources.read_binary(__name__, 'Aldrich-Regular.ttf'))
+# The file needs to be closed for Windows
+_font_file.close()
 pyglet.font.add_file(_font_file.name)
 FONT = pyglet.font.load('Aldrich')
 
